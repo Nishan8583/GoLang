@@ -1,2 +1,1 @@
-# A discord Bot library attempt is added
-
+# Programming projects written in golang

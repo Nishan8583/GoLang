@@ -7,23 +7,19 @@ import (
     "io/ioutil";
     "os";
     "flag";
-    "strconv";
+
 )
 
-// Structure for holding policy info
-type policy struct {
-    word string;  // The word your policy wants to banned
-    count int;  // The maximum thershold for the word count
-    refresh int; // Refresh the user policy info in this time
-}
-var policyList []policy;
+var threshold int;
+var policyList []string;
 var content []byte;
 var policyBreakerList map[string]int;
 
 
 // Prepration function that will get the policy
 func init() {
-
+      threshold = 1;
+    //policyBreakerList["test"] = 1;
     // Declaring the flag so that the user can use it ti supply the file
     pFile := flag.String("file","policy.dat","Give the filename containing the policu Ex: -file=filename.dat")
     flag.Parse();
@@ -61,9 +57,7 @@ func init() {
         }
         temp := strings.Split(value,",")
         fmt.Println(temp[2])
-        v1,_ := strconv.Atoi(temp[1]);
-        v2,_ := strconv.Atoi(temp[2]);
-        policyList = append(policyList,policy{word : temp[0],count : v1,refresh : v2});
+        policyList = append(policyList,temp[0]);
     }
     fmt.Println(policyList);
 }
@@ -72,7 +66,7 @@ func init() {
 var BotID string;
 
 func main() {
-    policyBreakerList := make(map[string]int);
+    policyBreakerList = make(map[string]int);
     // Creating a bot type
     bot,err := discordgo.New("Bot NTc2NjUwMzQ0ODc3MjYwODAw.XNZl4w.tUX0FBt87pXRt0Sow5M0k_SOcJ4");
     if err != nil {
@@ -127,8 +121,14 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
             fmt.Println("not Present");
             policyBreakerList[m.Author.Username] = 1;
         }
-        msg := fmt.Sprintf("Why you gotta be vulgar %s Your count",m.Author.Username,policyBreakerList[m.Author.Username]);
+
+        msg := fmt.Sprintf("Why you gotta be vulgar %s Your count %d",m.Author.Username,policyBreakerList[m.Author.Username]);
         _,_ = s.ChannelMessageSend(m.ChannelID,msg)
+
+        if (policyBreakerList[m.Author.Username] > threshold) {
+             msg = fmt.Sprintf("You are in for some trouble %s",m.Author.Username);
+             _,_ = s.ChannelMessageSend(m.ChannelID,msg)
+       }
         return;
     }
     if (strings.Contains(m.Content,"bot")) {
@@ -140,7 +140,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func checkVulgarList(msg string) (bool){
     for _,value := range policyList {
-        if (strings.Contains(msg,value.word)) {
+        if (strings.Contains(strings.ToLower(msg),strings.ToLower(value))) {
             return true;
         }
     }
