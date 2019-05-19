@@ -68,7 +68,7 @@ var BotID string;
 func main() {
     policyBreakerList = make(map[string]int);
     // Creating a bot type
-    bot,err := discordgo.New("Bot NTc2NjUwMzQ0ODc3MjYwODAw.XNZl4w.tUX0FBt87pXRt0Sow5M0k_SOcJ4");
+    bot,err := discordgo.New("Bot <key here>");
     if err != nil {
         fmt.Println("An error has occured while trying to create the discord bot type",err);
         return;
@@ -93,7 +93,7 @@ func main() {
     }
 
     // Send the initial message
-    Msg, err := bot.ChannelMessageSend("576659713140457476","Hello, The bot has activated itself");
+    Msg, err := bot.ChannelMessageSend("<Channel ID here>","Hello, The bot has activated itself");
     if err != nil {
         fmt.Println("Error sending Message",err);
     } else {
