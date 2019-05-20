@@ -1,5 +1,5 @@
 /*Hybrid Analaysis package, a wrapper around the official hybrid analysis's rest api*/
-package main;
+package Hybrid;
 
 import (
     "net/http";
@@ -7,58 +7,153 @@ import (
     "io/ioutil";
     "strings";
     "bytes";
+    //"strconv";
+    "time";
 )
 
-var req *http.Request;
-var err error;
-var c http.Client;
-// SetApiParams sets the api key to be used and http Request body, Will return error if found any
-func SetParams(api string) (error) {
-        // If i just declared error here, then i would have to put := since it was a new var
-        // This would create a new req var, but assiging to the global req var
-        req, err = http.NewRequest("POST","",nil)
-        if err != nil {
-            return err;
-        }
-        req.URL.Scheme = "https"
-        req.URL.Host = "www.hybrid-analysis.com"
-        req.Header.Add("api-key",api);
-        req.Header.Add("user-agent","Falcon Sandbox");
-        req.Header.Add("accept","application/json");
-        return nil;
+// The base type the package will be using
+type Hybridgo struct {
+  req *http.Request;
+  err error;
+  client http.Client;
 }
 
-/* QueryDomain retrieves information about the domain
-Ex: resp, err := QueryDomain("http.example.com")
-    if err != nil {
-    ...
-    }
-    fmt.Pritnln(resp);
-*/
-func Query(query_type,formdata string) (string, error){
-    switch query_type {
-    case "domain":
-        req.URL.Path = "/api/v2/search/terms"
-        body:= fmt.Sprintf(`{"domain":"%s"}`,formdata)
-        //req.Header.Add("content-type","application/x-www-form-urlencoded")
-        req.Body = ioutil.NopCloser(strings.NewReader(body));
-    case "hash":
-        req.URL.Path = "/api/v2/search/hash"
-        req.Header.Add("content-type","application/x-www-form-urlencoded")
-        body:= []byte(fmt.Sprintf(`{"hash":"%s"}`,formdata))
-        req.Body = ioutil.NopCloser(bytes.NewBuffer(body));
-    case "overview":
-        req.Method = "GET";
-        req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s`,formdata)
-    }
+// SetApiParams sets the api key to be used and http Request body, Will return error if found any
+func HybridInit(api string) (Hybridgo,error) {
+        // If i just declared error here, then i would have to put := since it was a new var
+        // This would create a new req var, but assiging to the global req var
+        hybridType := Hybridgo{};
+        req, err := http.NewRequest("POST","",nil)
+        if err != nil {
+            return hybridType,err;
+        }
+        hybridType.req = req;
+        hybridType.req.URL.Scheme = "https"
+        hybridType.req.URL.Host = "www.hybrid-analysis.com"
+        hybridType.req.Header.Add("api-key",api);
+        hybridType.req.Header.Add("user-agent","Falcon Sandbox");
+        hybridType.req.Header.Add("accept","application/json");
+        return hybridType,nil;
+}
 
-    fmt.Println(req)
-    resp, err := c.Do(req);
+/*
+Overview(hash_in _string) gets the overview of some hash info given
+Original API Reference: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256_
+*/
+func (h *Hybridgo) Overview(formdata string) (string, error){
+        h.req.Method = "GET";
+        h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s`,formdata)
+
+    fmt.Println(h.req)
+    resp, err := h.client.Do(h.req);
     if err != nil {
         fmt.Println("Could not get response")
         return "",err;
     }
-    response,err := ioutil.ReadAll(resp.Body)
+    response,err := ioutil.ReadAll(resp.Body);
+    if err != nil {
+        return "",err;
+    }
+    return string(response),nil;
+}
+
+/*
+OverviewReferesh(hash) refersehes overviews and downloads fresh data
+Original API Reference: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__refresh
+*/
+func (h *Hybridgo) OverviewReferesh(formdata string) (string, error){
+        h.req.Method = "GET";
+        h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s/referesh`,formdata)
+
+    fmt.Println(h.req)
+    resp, err := h.client.Do(h.req);
+    if err != nil {
+        fmt.Println("Could not get response")
+        return "",err;
+    }
+    response,err := ioutil.ReadAll(resp.Body);
+    if err != nil {
+        return "",err;
+    }
+    return string(response),nil;
+}
+
+/*
+DownloadSample(hash) downloads the file belonging to the hash, The file has to donwloadable though,
+the filename will be sample-year-month-day-minute-nanosecond.gzip
+Ex:
+h, err := HybridInit("<API-KEY>"); // The api key will be used
+if err != nil {
+  fmt.Println("Could not Create Hybrid Type",err);
+  return;
+}
+fmt.Println(h);
+err = h.DownloadSample(hash_in_string);
+if err != nil {
+  fmt.Println(err);
+}
+*/
+func (h *Hybridgo) DownloadSample(hash string) (error) {
+  h.req.Method = "GET";
+  h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s/sample`,hash);
+  h.req.Header["accept"] = []string{"application/gzip"};
+
+  // Changing back to default so that other apis don't have problems
+  defer func() {
+    h.req.Header["accept"] = []string{"application/json"};
+  }();
+
+  fmt.Println("Attempting to Download file");
+  resp,err := h.client.Do(h.req);
+  if (err != nil) {
+    fmt.Println("Could not Download file")
+    return err;
+  }
+
+  response, err := ioutil.ReadAll(resp.Body);
+  if (err != nil) {
+    return err;
+  }
+
+  if (resp.StatusCode == 200) {
+    fmt.Println("Downloading file successfull")
+    t := time.Now()
+    filename:= fmt.Sprintf("sample-%d-%d-%d-%d-%d.zip",t.Year(),t.Month(),t.Day(),t.Minute(),t.Nanosecond());
+    fmt.Println("Filename:",filename);
+    err := ioutil.WriteFile(filename,response,055);
+    if (err != nil) {
+      fmt.Println("Error Creating File");
+      return err;
+    }
+    return nil;
+  }
+  return nil;
+}
+
+func (h *Hybridgo) Query(query_type,formdata string) (string, error){
+    switch query_type {
+    case "domain":
+        h.req.URL.Path = "/api/v2/search/terms"
+        body:= fmt.Sprintf(`{"domain":"%s"}`,formdata)
+        //req.Header.Add("content-type","application/x-www-form-urlencoded")
+        h.req.Body = ioutil.NopCloser(strings.NewReader(body));
+    case "hash":
+        h.req.URL.Path = "/api/v2/search/hash"
+        h.req.Header.Add("content-type","application/x-www-form-urlencoded")
+        body:= []byte(fmt.Sprintf(`{"hash":"%s"}`,formdata))
+        h.req.Body = ioutil.NopCloser(bytes.NewBuffer(body));
+    case "overview":
+        h.req.Method = "GET";
+        h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s`,formdata)
+    }
+
+    fmt.Println(h.req)
+    resp, err := h.client.Do(h.req);
+    if err != nil {
+        fmt.Println("Could not get response")
+        return "",err;
+    }
+    response,err := ioutil.ReadAll(resp.Body);
     if err != nil {
         return "",err;
     }
