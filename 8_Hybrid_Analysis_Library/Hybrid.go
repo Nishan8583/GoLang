@@ -1,28 +1,28 @@
 /*Hybrid Analaysis package, a wrapper around the official hybrid analysis's rest api*/
-package Hybrid;
+package main;
 
 import (
     "net/http";
     "fmt";
     "io/ioutil";
     "strings";
-    "bytes";
+    //"bytes";
     //"strconv";
     "time";
 )
 
 // The base type the package will be using
-type Hybridgo struct {
+type GoHybrid struct {
   req *http.Request;
   err error;
   client http.Client;
 }
 
 // SetApiParams sets the api key to be used and http Request body, Will return error if found any
-func HybridInit(api string) (Hybridgo,error) {
+func HybridInit(api string) (GoHybrid,error) {
         // If i just declared error here, then i would have to put := since it was a new var
         // This would create a new req var, but assiging to the global req var
-        hybridType := Hybridgo{};
+        hybridType := GoHybrid{};
         req, err := http.NewRequest("POST","",nil)
         if err != nil {
             return hybridType,err;
@@ -36,15 +36,15 @@ func HybridInit(api string) (Hybridgo,error) {
         return hybridType,nil;
 }
 
+// Overview part starts here
 /*
 Overview(hash_in _string) gets the overview of some hash info given
 Original API Reference: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256_
 */
-func (h *Hybridgo) Overview(formdata string) (string, error){
+func (h *GoHybrid) Overview(formdata string) (string, error){
         h.req.Method = "GET";
         h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s`,formdata)
 
-    fmt.Println(h.req)
     resp, err := h.client.Do(h.req);
     if err != nil {
         fmt.Println("Could not get response")
@@ -57,11 +57,40 @@ func (h *Hybridgo) Overview(formdata string) (string, error){
     return string(response),nil;
 }
 
+func (h * GoHybrid) OverviewSummary(hash string) (string, error) {
+  h.req.Method = "GET";
+  h.req.URL.Path = fmt.Sprintf("/api/v2/overview/%s/summary",hash);
+  fmt.Println(h);
+  resp, err := h.client.Do(h.req); // Do the rest
+  if err != nil {
+    fmt.Println("Could not get overview summary");
+    return "",err;
+  }
+  response, err := ioutil.ReadAll(resp.Body);
+  if (err != nil) {
+    fmt.Println("Could not read response body");
+    return "",err;
+  }
+  return string(response),nil;
+
+}
 /*
 OverviewReferesh(hash) refersehes overviews and downloads fresh data
 Original API Reference: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__refresh
+Ex:
+h, err := HybridInit("<API-KEY>"); // The api key will be used
+if err != nil {
+  fmt.Println("Could not Create Hybrid Type",err);
+  return;
+}
+fmt.Println(h);
+resp,err = h.OverviewReferesh(hash_in_string);
+if err != nil {
+  fmt.Println(err);
+}
+fmt.Println(resp)
 */
-func (h *Hybridgo) OverviewReferesh(formdata string) (string, error){
+func (h *GoHybrid) OverviewReferesh(formdata string) (string, error){
         h.req.Method = "GET";
         h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s/referesh`,formdata)
 
@@ -92,8 +121,9 @@ err = h.DownloadSample(hash_in_string);
 if err != nil {
   fmt.Println(err);
 }
+Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__sample
 */
-func (h *Hybridgo) DownloadSample(hash string) (error) {
+func (h *GoHybrid) DownloadSample(hash string) (error) {
   h.req.Method = "GET";
   h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s/sample`,hash);
   h.req.Header["accept"] = []string{"application/gzip"};
@@ -130,7 +160,117 @@ func (h *Hybridgo) DownloadSample(hash string) (error) {
   return nil;
 }
 
-func (h *Hybridgo) Query(query_type,formdata string) (string, error){
+// Report API starts here
+/*
+ReportState(hash) gets the rport
+Ex:
+h, err := HybridInit("<API-KEY>"); // The api key will be used
+if err != nil {
+  fmt.Println("Could not Create Hybrid Type",err);
+  return;
+}
+fmt.Println(h);
+err = h.ReportState(hash_in_string);
+if err != nil {
+  fmt.Println(err);
+}
+Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__state
+*/
+func (h *GoHybrid) ReportState(hash string) (string, error) {
+  h.req.Method = "GET";
+  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/state",hash);
+
+  fmt.Println(h);
+  resp, err := h.client.Do(h.req);
+  if (err != nil) {
+    fmt.Println("Could not get Report");
+    return "",nil;
+  }
+  response, err := ioutil.ReadAll(resp.Body);
+  if (err != nil) {
+    fmt.Println("Could not read body");
+    return "",err;
+  }
+  return string(response),nil;
+
+}
+
+/*
+ReportSummaryID(hash) gets the rport
+Ex:
+h, err := HybridInit("<API-KEY>"); // The api key will be used
+if err != nil {
+  fmt.Println("Could not Create Hybrid Type",err);
+  return;
+}
+fmt.Println(h);
+err = h.ReportSummaryID(hash_in_string);
+if err != nil {
+  fmt.Println(err);
+}
+Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__summary
+*/
+func (h *GoHybrid) ReportSummaryID(hash string) (string, error) {
+  h.req.Method = "GET";
+  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/summary",hash);
+
+  fmt.Println(h);
+  resp, err := h.client.Do(h.req);
+  if (err != nil) {
+    fmt.Println("Could not get Report");
+    return "",nil;
+  }
+  response, err := ioutil.ReadAll(resp.Body);
+  if (err != nil) {
+    fmt.Println("Could not read body");
+    return "",err;
+  }
+  return string(response),nil;
+
+}
+
+/*
+ReportSummary(hash) gets the rport
+Ex:
+h, err := HybridInit("<API-KEY>"); // The api key will be used
+if err != nil {
+  fmt.Println("Could not Create Hybrid Type",err);
+  return;
+}
+fmt.Println(h);
+err = h.ReportSummary(hash_in_string);
+if err != nil {
+  fmt.Println(err);
+}
+Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__summary
+*/
+func (h *GoHybrid) ReportSummary(hash []string) (string, error) {
+  h.req.Method = "GET";
+  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/summary",hash);
+  body := ``
+  for _,value := range(hash) {
+    body = body + fmt.Sprintf(`hashes[]:%s&,`,value);
+  }
+  body = strings.TrimRight(body,"&");
+  fmt.Println(body)
+  h.req.Body = ioutil.NopCloser(strings.NewReader(body));
+  fmt.Println(h.req);
+  resp, err := h.client.Do(h.req);
+  if (err != nil) {
+    fmt.Println("Could not get Report");
+    return "",nil;
+  }
+  response, err := ioutil.ReadAll(resp.Body);
+  if (err != nil) {
+    fmt.Println("Could not read body");
+    return "",err;
+  }
+  return string(response),nil;
+
+}
+
+/*
+func (h *GoHybrid) Query(query_type,formdata string) (string, error){
     switch query_type {
     case "domain":
         h.req.URL.Path = "/api/v2/search/terms"
@@ -159,3 +299,4 @@ func (h *Hybridgo) Query(query_type,formdata string) (string, error){
     }
     return string(response),nil;
 }
+*/
