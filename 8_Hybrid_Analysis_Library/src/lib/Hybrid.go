@@ -10,8 +10,12 @@ import (
     //"strconv";
     "time";
     "net/url"
+    "encoding/json"
 )
 
+type Job struct {
+    JobId string `json:"job_id"`
+}
 // The base type the package will be using
 type GoHybrid struct {
   req *http.Request;
@@ -19,6 +23,7 @@ type GoHybrid struct {
   client http.Client;
 }
 
+//
 // SetApiParams sets the api key to be used and http Request body, Will return error if found any
 func HybridInit(api string) (GoHybrid,error) {
         // If i just declared error here, then i would have to put := since it was a new var
@@ -34,9 +39,39 @@ func HybridInit(api string) (GoHybrid,error) {
         hybridType.req.Header.Add("api-key",api);
         hybridType.req.Header.Add("user-agent","Falcon Sandbox");
         hybridType.req.Header.Add("accept","application/json");
+        hybridType.req.Header.Add("content-type","application/x-www-form-urlencoded")
         return hybridType,nil;
 }
 
+// Search section starts here
+func (h *GoHybrid) SearchHash(hash string) (string, error) {
+    form := url.Values{};
+    form.Add("hash",hash);
+    h.req.URL.Path = "/api/v2/search/hash";
+    h.req.Method = "POST";
+    h.req.Body = ioutil.NopCloser(strings.NewReader(form.Encode()));
+    resp, err := h.client.Do(h.req);
+    if (err != nil) {
+        fmt.Println("Error while requesting",err);
+        return "",err;
+    }
+
+    response, err := ioutil.ReadAll(resp.Body);
+    if (err != nil) {
+        fmt.Println("Error while Reading");
+        return "",err
+    }
+
+    holder := []Job{};  // Getting job id
+    err = json.Unmarshal(response,&holder);
+    if err != nil {
+        fmt.Println(err);
+    }
+    fmt.Println(holder);
+    defer resp.Body.Close()
+    return string(response),nil;
+
+}
 // Overview part starts here
 /*
 Overview(hash_in _string) gets the overview of some hash info given
