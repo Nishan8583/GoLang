@@ -1,8 +1,17 @@
 // Here lies all the types needed for json unmarshalling
 package Hybrid;
 
+//The base type the package will be using which will contain the httpRequest state and client to do interaction
+import (
+  "net/http";
+)
+type GoHybrid struct {
+  req *http.Request;
+  client http.Client;
+}
+
 // Json unmarshalling type for /search/hash
-// Api Reference: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_hash
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_hash
 type mitre struct {
     Tactic string `json:"tactic"`
     Technique string `json:technique`
@@ -54,4 +63,62 @@ type SearchHashType struct {
     Tags []string `json:"tags"`
     MitreAttcks []mitre `json:"mitre_attcks"`
 
+}
+
+// Json Unmarshalling for /search/SearchTerms
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_terms*/
+type SearchTermsResult struct {
+  Verdict string `json:"verdict"`
+  Vxfamily string `json:"vx_family"`
+  Sha256 string `json:"sha256"`
+  ThreatScore int `json:"threat_score"`
+  JobId string `json:"job_id"`
+  EnviromentId int `json:"environment_id"`
+  Analysis_start_time string `json:"analysis_start_time"`
+  SubmitName string `json:"submit_name"`
+  Environment_description string `json:"environment_description"`
+  Size int `json:"size"`
+  Type string `json:type`
+  TypeShort string `json:type_short`
+}
+type SearchTermsType struct {
+  SearchTerms []map[string]string `json:"search_terms"`
+  Count int `json:"count"`
+  Result []SearchTermsResult `json:"result"`
+
+}
+
+// Json Unmarshalling type for /overview/{sha256}
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256_
+type OverviewTypeScanner struct {
+  Name string `json:"name"`
+  Status string `json:"status"`
+  Progress int `json:"progress"`
+  Total int `json:"total"`
+  Positives int `json:"positives"`
+  Percent int `json:"percent"`
+  AntiVirusResults []string `json:"anti_virus_results"`
+}
+type OverviewType struct {
+  Sha256 string `json:"sha256"`
+  LastFileName string `json:"last_file_name"`
+  OtherFileName []string `json:"other_file_name"`
+  ThreatScore int `json:"threat_score"`
+  Verdict string `json:"verdict"`
+  UrlAnalysis bool `json:"url_analysis"`
+  Size int `json:"size"`
+  Type string `json:"type"`
+  TypeShort []string `json:"type_short"`
+  AnalysisStartTime string `json:"analysis_start_time"`
+  LastMultiScan string `json:"last_multi_scan"`
+  Tags []string `json:"tags"`
+  Architecture string `json:"architecture"`
+  MultiScanResult int `json:"multiscan_result"`
+  Scanners []OverviewTypeScanner `json:"scanners"`
+  RelatedParentHashes []string `json:"related_parent_hashes"`
+  RelatedChilrenHahses []string `json:"related_children_hashes"`
+  WhiteListed bool `json:"whitelisted"`
+  ChildrenInQueue int `json:"children_in_queue"`
+  children_in_progress int `json:"children_in_progress"`
+  RelatedReports []string `json:"related_reports"`
 }
