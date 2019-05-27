@@ -119,6 +119,6 @@ type OverviewType struct {
   RelatedChilrenHahses []string `json:"related_children_hashes"`
   WhiteListed bool `json:"whitelisted"`
   ChildrenInQueue int `json:"children_in_queue"`
-  children_in_progress int `json:"children_in_progress"`
+  Children_in_progress int `json:"children_in_progress"`
   RelatedReports []string `json:"related_reports"`
 }
