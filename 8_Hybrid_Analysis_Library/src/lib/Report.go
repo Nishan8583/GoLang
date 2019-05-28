@@ -68,8 +68,8 @@ Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_r
 Note: for /report/summary use this function in a loop
 https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/post_report_summary
 */
-func (h *GoHybrid) ReportSummaryID(JobId string) (ReportSummaryIDType, error) {
-    holder := ReportSummaryIDType{}
+func (h *GoHybrid) ReportSummaryID(JobId string) (HybridMainType, error) {
+    holder := HybridMainType{}
     h.req.Method = "GET";
     h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/summary",JobId);  // Using the jobid to get result
     resp, err := h.client.Do(h.req);

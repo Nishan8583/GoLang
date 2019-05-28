@@ -24,6 +24,7 @@ type mitre struct {
     InformativeIdentifiers []string `json:"informative_identifiers"`
     InformativeIdentifiersCount int `json:informative_identifiers_count`
 }
+/*
 type SearchHashType struct {
     JobId string `json:"job_id"`
     EnviromentId int `json:"environment_id"`
@@ -58,12 +59,12 @@ type SearchHashType struct {
     TotalNetworkConnections int `json:"total_network_connections"`
     TotalProcesses int `json:"total_processes"`
     TotalSignatures int `json:"total_signatures"`
-    Processes []map[string]string `json:"processes"` // An error may occur since if no value null is returned
+    Processes []map[string]interface{} `json:"processes"` // Possible Values are string or int od value.(type) of reflect package
     FileMetadata []string `json:"file_metadata"`
     Tags []string `json:"tags"`
     MitreAttcks []mitre `json:"mitre_attcks"`
 
-}
+}*/
 
 // Json Unmarshalling for /search/SearchTerms
 // Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_terms*/
@@ -162,7 +163,7 @@ type ExtractedFiles struct {
     AvTotal int `json:"av_total"`
     FileAvailableToDownload bool `json:"file_available_to_download"`
 }
-type ReportSummaryIDType struct {
+type HybridMainType struct {
     JobId string `json:"job_id"`
     EnviromentId int `json:"environment_id"`
     Environment_description string `json:"environment_description"`
@@ -186,6 +187,8 @@ type ReportSummaryIDType struct {
     Analysis_start_time string `json:"analysis_start_time"`
     ThreatScore int `json:"threat_score"`
     Interesting bool `json:interesting`
+    ThreatLevelHuman string `json:"threat_level_human"`
+    Unknown bool `json:"unknown"`
     ThreatLevel int `json:"threat_level"`
     Verdict string `json:"verdict"`
     Certificates []string `json:"certificates"`
@@ -193,11 +196,15 @@ type ReportSummaryIDType struct {
     ClassificationTags []string `json:"classification_tags"`
     CompromisedHosts []string `json:"compromised_hosts"`
     Hosts []string `json:"hosts"`
+    HostsGeolocation []map[string]string `json:"hosts_geolocation"`
+    SharedAnalysis bool `json:"shared_analysis"`
+    Reliable bool `json:"reliable"`
+    ReportURL string `json:"report_url"`
     TotalNetworkConnections int `json:"total_network_connections"`
     TotalProcesses int `json:"total_processes"`
     TotalSignatures int `json:"total_signatures"`
     Extracted_Files []ExtractedFiles `json:"extracted_files"`
-    Processes []map[string]string `json:"processes"`  // An error may occur since if no value null is returned
+    Processes []map[string]interface{} `json:"processes"`  // An error may occur since if no value null is returned
     FileMetadata []string `json:"file_metadata"`
     Tags []string `json:"tags"`
     MitreAttcks []mitre `json:"mitre_attcks"`
@@ -208,4 +215,12 @@ type ReportSummaryIDType struct {
 type ReportScreenshotsType struct {
     Name string `json:"name"`
     Image string `json:"image"`
+}
+
+// Json Unmarshalling for feeds
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Feed/get_feed_latest
+type FeedType struct {
+    Count int `json:"count"`
+    Status string `json:"status"`
+    Data []HybridMainType `json:"data"`
 }

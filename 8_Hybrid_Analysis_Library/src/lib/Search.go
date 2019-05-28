@@ -9,12 +9,12 @@ import (
     "encoding/json"
 )
 
-/* SearchHash(hash) returns sliceof the SearchHashType, in case of error error value is thrown\
+/* SearchHash(hash) returns sliceof the HybridMainType, in case of error error value is thrown\
 Referece Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_hash
 */
-func (h *GoHybrid) SearchHash(hash string) ([]SearchHashType, error) {
+func (h *GoHybrid) SearchHash(hash string) ([]HybridMainType, error) {
     // Reference: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_hash
-    holder := []SearchHashType{};  // Destination of json Unmarshalling
+    holder := []HybridMainType{};  // Destination of json Unmarshalling
 
     form := url.Values{};
     form.Add("hash",hash);
