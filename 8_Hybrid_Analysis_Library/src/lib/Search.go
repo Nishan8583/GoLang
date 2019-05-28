@@ -35,7 +35,6 @@ func (h *GoHybrid) SearchHash(hash string) ([]SearchHashType, error) {
     if err != nil {
         fmt.Println(err);
     }
-    fmt.Println(holder);
     defer resp.Body.Close()
     return holder,nil;
 
