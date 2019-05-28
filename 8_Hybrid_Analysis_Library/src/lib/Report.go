@@ -175,3 +175,30 @@ func (h *GoHybrid) ReportScreenshots(JobID string) (error) {
     }
     return nil;
 }
+
+// ReportDownloadExtractedFiles(JobId) will download all the extracted files by a malware
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__dropped_files
+func (h *GoHybrid) ReportDownloadExtractedFiles(JobID string) (error) {
+    h.req.Method = "GET";
+    h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/dropped-files",JobID);
+
+    resp, err := h.client.Do(h.req);
+    if (err != nil) {
+        fmt.Println("Could not query the server");
+        return err;
+    }
+    response, err := ioutil.ReadAll(resp.Body);
+    if (err != nil) {
+        fmt.Println("Error Reading Response Body");
+        return err;
+    }
+    t := time.Now();
+    filename:= fmt.Sprintf("%s-Extracted-Files-%d-%d-%d-%d-%d.zip",JobID,t.Year(),t.Month(),t.Day(),t.Minute(),t.Nanosecond());
+    err = ioutil.WriteFile(filename,response,055);
+    if (err != nil) {
+        fmt.Println("Sorry But could not create file ",filename);
+        return err;
+    }
+    fmt.Println("Successfully Created file ",filename);
+    return nil;
+}
