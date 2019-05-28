@@ -1,4 +1,4 @@
-// // Implements /overview/... parts of the Api
+// Implements /overview/... parts of the Api
 package Hybrid;
 
 import (
@@ -33,54 +33,29 @@ func (h *GoHybrid) Overview(hash string) (OverviewType, error){
     return holder,nil;
 }
 
-func (h * GoHybrid) OverviewSummary(hash string) (string, error) {
+/*OverviewSummary(hash) gets the summary result of scanned hash
+Return type is OverviewSummaryType and error if present
+Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__summary*/
+func (h * GoHybrid) OverviewSummary(hash string) (OverviewSummaryType, error) {
+  holder := OverviewSummaryType{}
   h.req.Method = "GET";
   h.req.URL.Path = fmt.Sprintf("/api/v2/overview/%s/summary",hash);
-  fmt.Println(h.req);
   resp, err := h.client.Do(h.req); // Do the rest
   if err != nil {
     fmt.Println("Could not get overview summary");
-    return "",err;
+    return holder,err;
   }
   response, err := ioutil.ReadAll(resp.Body);
   if (err != nil) {
     fmt.Println("Could not read response body");
-    return "",err;
+    return holder,err;
   }
-  return string(response),nil;
+  err = json.Unmarshal(response,&holder);
+  if (err != nil) {
+      fmt.Println("Error parsing json ",err);
+  }
+  return holder,nil;
 
-}
-/*
-OverviewReferesh(hash) refersehes overviews and downloads fresh data
-Original API Reference: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__refresh
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-resp,err = h.OverviewReferesh(hash_in_string);
-if err != nil {
-  fmt.Println(err);
-}
-fmt.Println(resp)
-*/
-func (h *GoHybrid) OverviewReferesh(formdata string) (string, error){
-        h.req.Method = "GET";
-        h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s/referesh`,formdata)
-
-    fmt.Println(h.req)
-    resp, err := h.client.Do(h.req);
-    if err != nil {
-        fmt.Println("Could not get response")
-        return "",err;
-    }
-    response,err := ioutil.ReadAll(resp.Body);
-    if err != nil {
-        return "",err;
-    }
-    return string(response),nil;
 }
 
 /*
@@ -125,12 +100,12 @@ func (h *GoHybrid) DownloadSample(hash string) (error) {
     fmt.Println("Downloading file successfull")
     t := time.Now()
     filename:= fmt.Sprintf("sample-%d-%d-%d-%d-%d.zip",t.Year(),t.Month(),t.Day(),t.Minute(),t.Nanosecond());
-    fmt.Println("Filename:",filename);
     err := ioutil.WriteFile(filename,response,055);
     if (err != nil) {
       fmt.Println("Error Creating File");
       return err;
     }
+    fmt.Println("Sample Download under the Filename:",filename);
     return nil;
   }
   return nil;
