@@ -201,5 +201,11 @@ type ReportSummaryIDType struct {
     FileMetadata []string `json:"file_metadata"`
     Tags []string `json:"tags"`
     MitreAttcks []mitre `json:"mitre_attcks"`
+}
 
+// Json Unmarshalling for /report/{id}/screenshots
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__screenshots
+type ReportScreenshotsType struct {
+    Name string `json:"name"`
+    Image string `json:"image"`
 }

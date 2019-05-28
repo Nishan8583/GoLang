@@ -2,9 +2,9 @@ package Hybrid;
 import (
     "fmt";
     "io/ioutil";
-    "strings";
-    "net/url"
     "encoding/json";
+    "encoding/base64"
+    "time";
 )
 // Report API starts here
 /*
@@ -65,6 +65,8 @@ if err != nil {
   fmt.Println(err);
 }
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__summary
+Note: for /report/summary use this function in a loop
+https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/post_report_summary
 */
 func (h *GoHybrid) ReportSummaryID(JobId string) (ReportSummaryIDType, error) {
     holder := ReportSummaryIDType{}
@@ -84,49 +86,8 @@ func (h *GoHybrid) ReportSummaryID(JobId string) (ReportSummaryIDType, error) {
   return holder,nil;
 }
 
-/*
-ReportSummary([]string{hash1,hash2...) gets the report summary
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-resp, err = h.ReportSummary([]string{"603a72e1aad833b92a6ef7edac65849c3d899b4b7eaac399abf2f6d2cbb4b1e7","c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98"});
-if err != nil {
-  fmt.Println(err);
-}
-fmt.Println(string(resp))
-Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/post_report_summary
-*/
 
 
-func (h *GoHybrid) ReportSummary(hash []string) ([]byte, error) {
-
-  h.req.Method = "POST";
-  h.req.URL.Path = fmt.Sprintf("/api/v2/report/summary");
-  h.req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-  // Adding hashses in form data
-  form := url.Values{}
-  for _,value := range(hash) {
-    form.Add("hashes[]",value);
-  }
-
-  h.req.Body = ioutil.NopCloser(strings.NewReader(form.Encode()));
-
-  resp, err := h.client.Do(h.req);
-  if (err != nil) {
-    return []byte("Could not get Report"),nil;
-  }
-  response, err := ioutil.ReadAll(resp.Body);
-  if (err != nil) {
-    return []byte("Could not read body"),err;
-  }
-  return response,nil;
-
-}
 
 /*
 ReportTypeSample(hash,filetype) gets the report summary
@@ -144,9 +105,9 @@ if err != nil {
 fmt.Println(string(resp))
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__file__type_
 */
-func (h *GoHybrid) ReportTypeSample(hash,ftype string) ([]byte, error) {
+func (h *GoHybrid) ReportTypeSample(JobId,ftype string) ([]byte, error) {
   h.req.Method = "GET";
-  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/file/%s",hash,ftype);
+  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/file/%s",JobId,ftype);
   h.req.Header["accept"] = []string{`application/xml`};
   defer func(){
     h.req.Header["accept"] = []string{`application/json`}
@@ -179,17 +140,38 @@ if err != nil {
 fmt.Println(string(resp))
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__screenshots
 */
-func (h *GoHybrid) ReportScreenshots(hash string) ([]byte, error) {
+func (h *GoHybrid) ReportScreenshots(JobID string) (error) {
+    holder := []ReportScreenshotsType{}
   h.req.Method = "GET";
-  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/screenshots",hash);
+  h.req.URL.Path = fmt.Sprintf("/api/v2/report/%s/screenshots",JobID);
 
     resp, err := h.client.Do(h.req);
     if err != nil {
-      return []byte(`Could not get report`),err;
+        fmt.Println("Could not Perform Request")
+      return err;
     }
     response, err := ioutil.ReadAll(resp.Body);
     if (err != nil) {
-      return []byte(`Could not read the body of response`),err;
+        fmt.Println("could not read the response body")
+      return err;
     }
-    return response,nil;
+    _= json.Unmarshal(response,&holder);
+    i := 0;
+    for _,value := range holder {
+        data, err := base64.StdEncoding.DecodeString(value.Image);
+        if (err != nil) {
+            fmt.Println("Could not decode the image value");
+            return err;
+        }
+        t := time.Now();
+        filename:= fmt.Sprintf("sample-%s-%d-%d-%d-%d-%d-%d.png",JobID,i,t.Year(),t.Month(),t.Day(),t.Minute(),t.Nanosecond());
+        err = ioutil.WriteFile(filename,data,055);
+        if (err != nil) {
+            fmt.Println("Sorry But could not create file ",filename);
+            return err;
+        }
+        fmt.Println("Successfully Created file ",filename);
+        i = i+1;
+    }
+    return nil;
 }
