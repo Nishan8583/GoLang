@@ -224,3 +224,70 @@ type FeedType struct {
     Status string `json:"status"`
     Data []HybridMainType `json:"data"`
 }
+
+// Json Unmarshalling for /system/version
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_stats
+type SystemVersionType struct {
+    Instance string `json:"instance"`
+    Sandbox string `json:"sandbox"`
+    Api string `json:"api"`
+}
+
+// Json Unmarshalling for  /system/enviroments
+// Reference Api: Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_environments
+type SystemEnviromentsType struct {
+    Id string `json:"id"`
+    EnviromentId int `json:"environment_id"`
+    Description string `json:"description"`
+    Architecture string `json:"architecture"`
+    VirtualMachines []string `json:"virtual_machines"`
+    TotalVirtualMachines int `json:"total_virtual_machines"`
+    BusyVirtualMachines int `json:"busy_virtual_machines"`
+    GroupIcon string `json:"group_icon"`
+    AnalysisMode string `json:"analysis_mode"`
+}
+
+// Json Unmarshalling for /system/stats
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_stats
+type SystemStatsType struct {
+    TotalSubmissions int `json:"total_submissions"`
+    InterestingFilesSize int `json:"interesting_file_size"`
+    InterestingFiles []InterestingFilesType `json:"interesting_files"`
+    MaliciousReportsSize int `json:"malicious_reports_size"`
+    MalicousReports []MaliciousReportsType `json:"malicious_reports"`
+    FileTypeDistribtionSize int `json:"file_type_distribution_size"`
+    FileTypeDistribution []FileTypeDistributionType `json:"file_type_distribution"`
+    EnviromentIdDistributionSize int `json:"environment_id_distribution_size"`
+    EnviromentIdDistribution []FileTypeDistributionType `json:"environment_id_distribution"`
+    TagsDistribtionSize int `json:"tags_distribution_size"`
+    TagsDistribution []FileTypeDistributionType `json:"tags_distribution"`
+    RecentComments []RecentCommentsType `json:"recent_comments"`
+    BehaviourIndicators int `json:"behaviour_indicators"`
+    TotalYaraRules int `json:"total_yara_rules"`
+    TotalSamples int `json:"total_samples"`
+}
+type InterestingFilesType struct {
+    Sha256 string `json:"sha256"`
+    EnviromentId int `json:"environment_id"`
+    SubmitName string `json:"submit_name"`
+    VirustotalDetectratePercent int `json:"virustotal_detectrate_percent"`
+    ConfidencePercent int `json:"confidence_percent"`
+}
+
+type MaliciousReportsType struct {
+    Sha256 string `json:"sha256"`
+    EnviromentId int `json:"environment_id"`
+    SubmitName string `json:"submit_name"`
+    Indicators int `json:"indicators"`
+}
+
+type FileTypeDistributionType struct {
+    Id string `json:"id"`
+    Value int `json:"value"`
+}
+
+type RecentCommentsType struct {
+    Sha256 string `json:"sha256"`
+    EnviromentId int `json:"environment_id"`
+    Comment string `json:"comment"`
+}
