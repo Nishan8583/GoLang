@@ -291,3 +291,10 @@ type RecentCommentsType struct {
     EnviromentId int `json:"environment_id"`
     Comment string `json:"comment"`
 }
+
+// json unmarshalling for submitted file
+type AnalyzeFileType struct {
+  JobId string `json:"job_id"`
+  EnviromentId int `json:"environment_id"`
+  Sha256 string `json:"sha256"`
+}
