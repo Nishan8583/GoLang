@@ -298,3 +298,32 @@ type AnalyzeFileType struct {
   EnviromentId int `json:"environment_id"`
   Sha256 string `json:"sha256"`
 }
+
+type ScannerType struct {
+  Name string `json:"name"`;
+  Available bool `json:"available"`
+  Description string `json:"description"`
+}
+
+type ScannerResult struct {
+  Name string `json:"name"`
+  Status string `json:"status"`
+  Progress int `json:"progress"`
+  Total int `json:"total"`
+  Positives int `json:"positives"`
+  AntiVirusResults []string `json:"anti_virus_results"`
+}
+type WhiteList struct {
+  Id string `json:"id"`
+  Valeu bool `json:"value"`
+
+}
+
+type ScannerResultType struct {
+  Id string `json:"id"`
+  Sha256 string `json:"sha256"`
+  Scanners []ScannerResult `json:"scanners"`
+  White_List []WhiteList `json:"whitelist"`
+  Reports []string `json:"reports"`
+  Finished bool `json:"finished"`
+}
