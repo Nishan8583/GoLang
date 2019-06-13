@@ -1,4 +1,3 @@
-// Implements /search/... parts of the Api, /search/hashes is not implemented, you can run /search/hash in loop
 package Hybrid
 
 import (

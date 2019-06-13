@@ -1,4 +1,3 @@
-// Implements /overview/... parts of the Api
 package Hybrid;
 
 import (

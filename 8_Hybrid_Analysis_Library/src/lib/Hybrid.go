@@ -1,4 +1,3 @@
-/*Hybrid Analaysis package, a wrapper around the official hybrid analysis's rest api*/
 package Hybrid;
 
 import (
