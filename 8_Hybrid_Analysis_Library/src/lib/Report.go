@@ -6,27 +6,10 @@ import (
     "encoding/base64"
     "time";
 )
-// Report API starts here
+
 /*
-ReportState(hash) gets the rport
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-resp, err := h.SearchHash("c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98");
-if err != nil {
-    fmt.Println(err);
-}
-for _,value := range resp {
-    res, err := ReportState(value.JobId);
-    if err != nil {
-      fmt.Println(err);
-    }
-    fmt.Println(res);
-}
+ReportState(hash) gets the rport state
+
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__state
 */
 func (h *GoHybrid) ReportState(JobId string) (ReportStateType, error) {
@@ -52,21 +35,11 @@ func (h *GoHybrid) ReportState(JobId string) (ReportStateType, error) {
 }
 
 /*
-ReportSummaryID(hash) gets the rport
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-err = h.ReportSummaryID(hash_in_string);
-if err != nil {
-  fmt.Println(err);
-}
-Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__summary
+ReportSummaryID(hash) gets the report
+
 Note: for /report/summary use this function in a loop
-https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/post_report_summary
+
+Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/post_report_summary
 */
 func (h *GoHybrid) ReportSummaryID(JobId string) (HybridMainType, error) {
     holder := HybridMainType{}
@@ -91,18 +64,8 @@ func (h *GoHybrid) ReportSummaryID(JobId string) (HybridMainType, error) {
 
 /*
 ReportTypeSample(hash,filetype) gets the report summary
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-resp, err = h.ReportSummary("603a72e1aad833b92a6ef7edac65849c3d899b4b7eaac399abf2f6d2cbb4b1e7","xml");
-if err != nil {
-  fmt.Println(err);
-}
-fmt.Println(string(resp))
+
+
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__file__type_
 */
 func (h *GoHybrid) ReportTypeSample(JobId,ftype string) ([]byte, error) {
@@ -125,19 +88,10 @@ func (h *GoHybrid) ReportTypeSample(JobId,ftype string) ([]byte, error) {
 }
 
 /*
-ReportScreenshots(hash string) ([]byte, error) gets screenshots
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-resp, err = h.ReportScreenshots("603a72e1aad833b92a6ef7edac65849c3d899b4b7eaac399abf2f6d2cbb4b1e7");
-if err != nil {
-  fmt.Println(err);
-}
-fmt.Println(string(resp))
+ReportScreenshots(jobID string) ([]byte, error) gets screenshots of the jobID specified
+
+Filename: sample-...
+
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__screenshots
 */
 func (h *GoHybrid) ReportScreenshots(JobID string) (error) {
@@ -177,6 +131,10 @@ func (h *GoHybrid) ReportScreenshots(JobID string) (error) {
 }
 
 // ReportDownloadExtractedFiles(JobId) will download all the extracted files by a malware
+// The file will be download in the directory the path the program was running in
+//
+// filename: {jobid}-Fxtracted_Files-....
+//
 // Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__dropped_files
 func (h *GoHybrid) ReportDownloadExtractedFiles(JobID string) (error) {
     h.req.Method = "GET";

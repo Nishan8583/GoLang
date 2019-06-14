@@ -7,6 +7,7 @@ import (
 )
 
 /*SystemVersion() gets the system element versions
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_version*/
 func (h *GoHybrid) SystemVersion() (SystemVersionType, error){
     holder := SystemVersionType{};
@@ -31,7 +32,8 @@ func (h *GoHybrid) SystemVersion() (SystemVersionType, error){
 }
 
 /*
-SystemEnviroments() returns infomration about available execution enviroments
+SystemEnviroments() returns infomration about available analysis enviroments
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_environments
 */
 func (h *GoHybrid) SystemEnviroments() ([]SystemEnviromentsType, error) {
@@ -58,8 +60,10 @@ func (h *GoHybrid) SystemEnviroments() ([]SystemEnviromentsType, error) {
 }
 
 /*
-SystemStatus() contains a variety of webservice statistics, e.g. the total number of submissions, unique submissions, signature ID distribution, user comments, etc.
-Reference Api:
+SystemStats() contains a variety of webservice statistics, e.g.
+the total number of submissions, unique submissions, signature ID distribution, user comments, etc.
+
+Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_stats
 */
 func (h *GoHybrid) SystemStats() (SystemStatsType, error) {
     holder := SystemStatsType{}

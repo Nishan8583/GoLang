@@ -1,31 +1,3 @@
-/*This is a package which uses the official hybrid Analysis API Details for the original Api can be found here https://www.hybrid-analysis.com/docs/api/v2#/
-Ex:
-
-	h, err := Hybrid.HybridInit("<API-KEY Here>") // The api key will be used
-	if err != nil {
-		fmt.Println("Could not Create Hybrid Type", err)
-		return
-	}
-
-	//resp,err := h.ReportSummary([]string{"603a72e1aad833b92a6ef7edac65849c3d899b4b7eaac399abf2f6d2cbb4b1e7","c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98"});
-	//resp,err := h.OverviewSummary("c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98");
-	//resp,err := h.SearchHash("c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98");
-	//resp,err := h.SearchQuery("domain","google.com");
-	//resp, err := h.AnalyzeFile("path_to_file.exe",map[string]string{"environment_id":"300");
-	//resp, err := h.AnalyzeURLFile("https://www.blackhat.com/presentations/bh-usa-04/bh-us-04-chambet/bh-us-04-chambet-google-up.pdf",map[string]string{"environment_id":"300"});
-	//resp, err := h.AnalyzeURL("https://medium.com/@masnun/making-http-requests-in-golang-dd123379efe7",map[string]string{"environment_id":"300"});
-	//resp, err := h.AnalyzeURLHash("https://www.blackhat.com/presentations/bh-usa-04/bh-us-04-chambet/bh-us-04-chambet-google-up.pdf");
-	//resp, err := h.AnalyzeDroppedFiles("e5b9ce395b80a7b55af07915923cd282589c6c4c9f079efc25827dcf11e6b9ec","7cff31263aaf801db3d229b44f77658736188f18578dce4594d71c514c8e412f");
-	//resp, err := h.ScanState();
-	resp, err := h.ScanResultId("5cf8c662028838c232ebc6bb")
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(resp)
-//
-Use It
-*/
 package Hybrid
 
 import (
@@ -39,7 +11,10 @@ import (
 	"strings"
 )
 
-/* AnalyzeFile(filename,map[string]stirng{"environment_id","300"}) submits file for analysis to hybrid analysis, and returns a strucutre containing enviromentid,jobid and hash
+/* AnalyzeFile(filename,map[string]stirng{"environment_id","300"})
+AnalyzeFile() submits the file specified, with the parameters to hybrid analysys for analysis
+submits file for analysis to hybrid analysis, and returns AnalyzeFileType strucutre containing enviromentid,jobid and hash
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Submission/post_submit_file
 Note: map[string]string here at least environment is cumposlary
 */
@@ -102,7 +77,10 @@ func (h *GoHybrid) AnalyzeFile(filename string, keys map[string]string) (Analyze
 	return holder,err
 }
 
-/* AnalyzeURLFile(url,map[string]stirng{"environment_id","300"}) submits file for analysis to hybrid analysis, and returns a strucutre containing enviromentid,jobid and hash
+/* AnalyzeURLFile(url,map[string]stirng{"environment_id","300"})
+AnalyzeURLFile submits file from the specified url for analysis to hybrid analysis,
+and returns AnalyzeFile strucutre containing enviromentid,jobid and hash
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Submission/post_submit_url_to_file
 Note: map[string]string here at least environment is cumposlary
 Also while providing the url, please be sure that the url is a download link
@@ -140,7 +118,10 @@ func (h *GoHybrid) AnalyzeURLFile(url_query string, keys map[string]string) (Ana
 	return holder,err
 }
 
-/* AnalyzeURL(url,map[string]stirng{"environment_id","300"}) submits file for analysis to hybrid analysis, and returns a strucutre containing enviromentid,jobid and hash
+/* AnalyzeURL(url,map[string]stirng{"environment_id","300"})
+AnalyzeURL() submits url for analysis to hybrid analysis, and returns AnalyzeFileType
+strucutre containing enviromentid,jobid and hash
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Submission/post_submit_url_for_analysis
 Note: map[string]string here at least environment is cumposlary
 Also please be sure that the url you provide is a url link and not a donwload link
@@ -178,7 +159,9 @@ func (h *GoHybrid) AnalyzeURL(url_query string, keys map[string]string) (Analyze
 	return holder,err
 }
 
-/* AnalyzeURLHash(url) submits file for analysis to hybrid analysis, and returns a strucutre containing enviromentid,jobid and hash
+/* AnalyzeURLHash(url)
+AnalyzeURLHash(url)submits file for analysis to hybrid analysis, and returns a strucutre containing enviromentid,jobid and hash
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Submission/post_submit_url_for_analysis
 Note: map[string]string here at least environment is cumposlary
 Also please be sure that the url you provide is a url link a donwload link
@@ -211,9 +194,11 @@ func (h *GoHybrid) AnalyzeURLHash(url_query string) (AnalyzeFileType,error) {
 	return holder,err
 }
 
-/* AnalyzeDroppedFiles(jobid,sha256) submits dropped file for analysis to hybrid analysis, and returns a strucutre containing enviromentid,jobid and hash
+/*AnalyzeDroppedFiles() submits dropped file for analysis with the sha256 hash specified rleated to the given jobid
+analysis to hybrid analysis,and returns a strucutre containing enviromentid,jobid and hash
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Submission/post_submit_dropped_file
-I only get 7cff31263aaf801db3d229b44f77658736188f18578dce4594d71c514c8e412f
+
+Its basically submitting dropped files by the malware for further analysis
 */
 func (h *GoHybrid) AnalyzeDroppedFiles(jobid,sha256 string) (string,error) {
 	//holder := AnalyzeFileType{}

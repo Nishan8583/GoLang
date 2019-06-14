@@ -6,8 +6,9 @@ import (
     "io/ioutil";
 )
 
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Feed/get_feed_latest
 // Feed() returns slice HybridMainType that will contain the feed
+//
+// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Feed/get_feed_latest
 func (h *GoHybrid) Feed() (FeedType, error){
     holder := FeedType{}
     h.req.Method = "GET";

@@ -1,13 +1,39 @@
+/*This is a package which uses the official hybrid Analysis API Details for the original Api can be found here https://www.hybrid-analysis.com/docs/api/v2#/
+:
+
+	h, err := Hybrid.HybridInit("<API-KEY Here>") // The api key will be used
+	if err != nil {
+		fmt.Println("Could not Create Hybrid Type", err)
+		return
+	}
+
+	//resp,err := h.ReportSummary([]string{"603a72e1aad833b92a6ef7edac65849c3d899b4b7eaac399abf2f6d2cbb4b1e7","c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98"});
+	//resp,err := h.OverviewSummary("c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98");
+	//resp,err := h.SearchHash("c7acf3c1167ae28439a22bec62e35303fd34043c600a6ad333cfe115a2b12e98");
+	//resp,err := h.SearchQuery("domain","google.com");
+	//resp, err := h.AnalyzeFile("path_to_file.exe",map[string]string{"environment_id":"300");
+	//resp, err := h.AnalyzeURLFile("https://www.blackhat.com/presentations/bh-usa-04/bh-us-04-chambet/bh-us-04-chambet-google-up.pdf",map[string]string{"environment_id":"300"});
+	//resp, err := h.AnalyzeURL("https://medium.com/@masnun/making-http-requests-in-golang-dd123379efe7",map[string]string{"environment_id":"300"});
+	//resp, err := h.AnalyzeURLHash("https://www.blackhat.com/presentations/bh-usa-04/bh-us-04-chambet/bh-us-04-chambet-google-up.pdf");
+	//resp, err := h.AnalyzeDroppedFiles("e5b9ce395b80a7b55af07915923cd282589c6c4c9f079efc25827dcf11e6b9ec","7cff31263aaf801db3d229b44f77658736188f18578dce4594d71c514c8e412f");
+	//resp, err := h.ScanState();
+	resp, err := h.ScanResultId("5cf8c662028838c232ebc6bb")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(resp)
+*/
 package Hybrid;
 
 import (
     "net/http";
 )
 
-
-
-
-// Hybrid sets the api key to be used and http Request body, Will return error if found any
+/*HybridInit() sets the api key and other essentials in the main GoHybrid type
+to be used later for calling functions. It Will return GoHybrid type and nil
+if error, will return empty type and error
+*/
 func HybridInit(api string) (GoHybrid,error) {
         // If i just declared error here, then i would have to put := since it was a new var
         // This would create a new req var, but assiging to the global req var
@@ -25,40 +51,3 @@ func HybridInit(api string) (GoHybrid,error) {
         hybridType.req.Header.Add("content-type","application/x-www-form-urlencoded")
         return hybridType,nil;
 }
-
-
-
-
-
-
-/*
-func (h *GoHybrid) Query(query_type,formdata string) (string, error){
-    switch query_type {
-    case "domain":
-        h.req.URL.Path = "/api/v2/search/terms"
-        body:= fmt.Sprintf(`{"domain":"%s"}`,formdata)
-        //req.Header.Add("content-type","application/x-www-form-urlencoded")
-        h.req.Body = ioutil.NopCloser(strings.NewReader(body));
-    case "hash":
-        h.req.URL.Path = "/api/v2/search/hash"
-        h.req.Header.Add("content-type","application/x-www-form-urlencoded")
-        body:= []byte(fmt.Sprintf(`{"hash":"%s"}`,formdata))
-        h.req.Body = ioutil.NopCloser(bytes.NewBuffer(body));
-    case "overview":
-        h.req.Method = "GET";
-        h.req.URL.Path = fmt.Sprintf(`/api/v2/overview/%s`,formdata)
-    }
-
-    fmt.Println(h.req)
-    resp, err := h.client.Do(h.req);
-    if err != nil {
-        fmt.Println("Could not get response")
-        return "",err;
-    }
-    response,err := ioutil.ReadAll(resp.Body);
-    if err != nil {
-        return "",err;
-    }
-    return string(response),nil;
-}
-*/

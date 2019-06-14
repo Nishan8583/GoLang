@@ -4,6 +4,8 @@ package Hybrid;
 import (
   "net/http";
 )
+
+// This the main Hybid type, Each of the other functions are called by this type
 type GoHybrid struct {
   req *http.Request;
   client http.Client;
@@ -24,9 +26,6 @@ type mitre struct {
     InformativeIdentifiersCount int `json:informative_identifiers_count`
 }
 
-
-// Json Unmarshalling for /search/SearchTerms
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_terms*/
 type SearchTermsResult struct {
   Verdict string `json:"verdict"`
   Vxfamily string `json:"vx_family"`
@@ -48,8 +47,6 @@ type SearchTermsType struct {
 
 }
 
-// Json Unmarshalling type for /overview/{sha256}
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256_
 type OverviewTypeScanner struct {
   Name string `json:"name"`
   Status string `json:"status"`
@@ -83,8 +80,6 @@ type OverviewType struct {
   RelatedReports []string `json:"related_reports"`
 }
 
-// Json Unmarshalling for overview/{sha256}/summary
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__summary
 type OverviewSummaryType struct {
     Sha256 string `json:"sha256"`
     ThreatScore int `json:"threat_score"`
@@ -94,8 +89,6 @@ type OverviewSummaryType struct {
     MultiScanResult int `json:"multiscan_result"`
 }
 
-// Json unmarshalling for /report/{id}/state
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__state
 type ReportStateType struct {
     State string `json:"state"`
     ErrorType string `json:"error_type"`
@@ -104,8 +97,6 @@ type ReportStateType struct {
     RelatedReports []string `json:"related_reports"`
 }
 
-// Json Unmarshalling for /report/{id}/summary
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__summary
 type ExtractedFiles struct {
     Name string `json:"name"`
     FilePath string `json:"file_path"`
@@ -164,36 +155,29 @@ type HybridMainType struct {
     TotalSignatures int `json:"total_signatures"`
     Extracted_Files []ExtractedFiles `json:"extracted_files"`
     Processes []map[string]interface{} `json:"processes"`  // An error may occur since if no value null is returned
+                                                           // This error can be ignored 
     FileMetadata []string `json:"file_metadata"`
     Tags []string `json:"tags"`
     MitreAttcks []mitre `json:"mitre_attcks"`
 }
 
-// Json Unmarshalling for /report/{id}/screenshots
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Sandbox_Report/get_report__id__screenshots
 type ReportScreenshotsType struct {
     Name string `json:"name"`
     Image string `json:"image"`
 }
 
-// Json Unmarshalling for feeds
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Feed/get_feed_latest
 type FeedType struct {
     Count int `json:"count"`
     Status string `json:"status"`
     Data []HybridMainType `json:"data"`
 }
 
-// Json Unmarshalling for /system/version
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_stats
 type SystemVersionType struct {
     Instance string `json:"instance"`
     Sandbox string `json:"sandbox"`
     Api string `json:"api"`
 }
 
-// Json Unmarshalling for  /system/enviroments
-// Reference Api: Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_environments
 type SystemEnviromentsType struct {
     Id string `json:"id"`
     EnviromentId int `json:"environment_id"`
@@ -206,8 +190,6 @@ type SystemEnviromentsType struct {
     AnalysisMode string `json:"analysis_mode"`
 }
 
-// Json Unmarshalling for /system/stats
-// Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/System/get_system_stats
 type SystemStatsType struct {
     TotalSubmissions int `json:"total_submissions"`
     InterestingFilesSize int `json:"interesting_file_size"`
@@ -251,8 +233,6 @@ type RecentCommentsType struct {
     Comment string `json:"comment"`
 }
 
-// json unmarshalling for submitted file
-// This structure will hold the response when you scan file
 type AnalyzeFileType struct {
   JobId string `json:"job_id"`
   EnviromentId int `json:"environment_id"`

@@ -8,7 +8,9 @@ import (
 )
 
 /*
-Overview(hash_in _string) gets the overview of some hash info given
+Overview(hash_in _string) gets the general result of analysis/overview of some hash given.
+It returns OverviewType, and error if any
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256_
 */
 func (h *GoHybrid) Overview(hash string) (OverviewType, error){
@@ -32,8 +34,9 @@ func (h *GoHybrid) Overview(hash string) (OverviewType, error){
     return holder,nil;
 }
 
-/*OverviewSummary(hash) gets the summary result of scanned hash
-Return type is OverviewSummaryType and error if present
+/*OverviewSummary(hash) gets the summary result of scanned hash and
+returns OverviewSummaryType and error if present
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__summary*/
 func (h * GoHybrid) OverviewSummary(hash string) (OverviewSummaryType, error) {
   holder := OverviewSummaryType{}
@@ -59,18 +62,9 @@ func (h * GoHybrid) OverviewSummary(hash string) (OverviewSummaryType, error) {
 
 /*
 DownloadSample(hash) downloads the file belonging to the hash, The file has to donwloadable though,
-the filename will be sample-year-month-day-minute-nanosecond.gzip
-Ex:
-h, err := HybridInit("<API-KEY>"); // The api key will be used
-if err != nil {
-  fmt.Println("Could not Create Hybrid Type",err);
-  return;
-}
-fmt.Println(h);
-err = h.DownloadSample(hash_in_string);
-if err != nil {
-  fmt.Println(err);
-}
+the filename will be sample-year-month-day-minute-nanosecond.gzip. It returns nil, or error if any
+
+
 Reference API: https://www.hybrid-analysis.com/docs/api/v2#/Analysis_Overview/get_overview__sha256__sample
 */
 func (h *GoHybrid) DownloadSample(hash string) (error) {

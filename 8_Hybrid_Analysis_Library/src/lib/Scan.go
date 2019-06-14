@@ -11,7 +11,9 @@ import (
   "strings"
 )
 
-/*ScanState() gets the of all the available scanner
+/*ScanState() gets list of all the available scanner and their state
+The return type is []ScannerType
+
 Referece Api: https://www.hybrid-analysis.com/docs/api/v2#/Quick_Scan/get_quick_scan_state
 */
 func (h *GoHybrid) ScanState() ([]ScannerType, error) {
@@ -36,7 +38,8 @@ func (h *GoHybrid) ScanState() ([]ScannerType, error) {
 }
 
 /*
-ScanFile(filename, keys mapp )scans the file and returns the result
+ScanFile(filename, keys mapp) scans the file and returns the structure ScannerResultType
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Quick_Scan/post_quick_scan_file
 */
 func (h *GoHybrid) ScanFile(filename string, keys map[string]string) (ScannerResultType, error) {
@@ -88,6 +91,7 @@ func (h *GoHybrid) ScanFile(filename string, keys map[string]string) (ScannerRes
 
 /*
 ScanURLFile(url, keys...) the url is the link to file to scan
+
 Refernce Api: https://www.hybrid-analysis.com/docs/api/v2#/Quick_Scan/post_quick_scan_url_to_file
 */
 func (h *GoHybrid) ScanURLFile(url_query string, keys map[string]string) (ScannerResultType, error) {
@@ -126,6 +130,7 @@ func (h *GoHybrid) ScanURLFile(url_query string, keys map[string]string) (Scanne
 
 /*
 ScanURL(url,keys..) pass the url to scan, not file url
+
 Refernce Api: https://www.hybrid-analysis.com/docs/api/v2#/Quick_Scan/post_quick_scan_url_for_analysis
 */
 func (h *GoHybrid) ScanURL(url_query string, keys map[string]string) (ScannerResultType, error) {
@@ -163,7 +168,9 @@ func (h *GoHybrid) ScanURL(url_query string, keys map[string]string) (ScannerRes
 }
 
 /*
-ScanResultId(id, keys), gets the report of the scan result
+ScanResultId(id, keys), gets the report of the scan result, pass in the JobId
+It returns ScannerResultType
+
 Refernce Api: https://www.hybrid-analysis.com/docs/api/v2#/Quick_Scan/get_quick_scan__id_
 */
 func (h *GoHybrid) ScanResultId(id string) (ScannerResultType, error) {

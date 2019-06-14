@@ -8,7 +8,10 @@ import (
     "encoding/json"
 )
 
-/* SearchHash(hash) returns sliceof the HybridMainType, in case of error error value is thrown\
+/*
+SearchHash(hash) returns sliceof the HybridMainType, in case of error error value is thrown
+Get Summary of given hash
+
 Referece Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_hash
 */
 func (h *GoHybrid) SearchHash(hash string) ([]HybridMainType, error) {
@@ -40,12 +43,10 @@ func (h *GoHybrid) SearchHash(hash string) ([]HybridMainType, error) {
 }
 
 /*SearchTerms(type,term) gets information about the related field
-Ex:
-resp,err := h.SearchQuery("domain","google.com");
-if err != nil {
-  fmt.Println(err);
-}
-fmt.Println(resp);
+
+types could be filename,filetype,country... and the value respectively. For
+Full list of types please refer to the link below
+
 Reference Api: https://www.hybrid-analysis.com/docs/api/v2#/Search/post_search_terms*/
 func (h *GoHybrid) SearchQuery(types,term string) (SearchTermsType, error) {
   holder := SearchTermsType{};
