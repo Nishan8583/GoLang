@@ -1,5 +1,6 @@
 package main
 
+// s
 import (
 	"database/sql"
 	"fmt"
@@ -7,56 +8,60 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Conenctdb(username, password string) {
-	var db *sql.DB
-	var err error
-	// If no password then just use no password
-	if len(password) == 0 {
-		fmt.Println("No password was given so using default empty password")
-		db, err = sql.Open("mysql", fmt.Sprintf(`%s:@tcp(127.0.0.1:3306)/`, username))
-		if err != nil {
-			fmt.Println("Could not connect to Database ", err)
-			return
-		}
-	} else { // if password was given
-		db, err = sql.Open("mysql", fmt.Sprintf(`%s:%s@tcp(127.0.0.1:3306`, username, password))
-		if err != nil {
-			fmt.Println("Could not conenct to database ", err)
-		}
+func checkErr(err error) {
+	fmt.Println(err)
+}
 
-	}
+// Function that connects to db and does stuff
+func ConnectDB() {
 
-	// Creating a sample database;
-	_, err = db.Exec("CREATE DATABASE testdb")
+	// registering the database driver interface, now the function from mysql driver will work
+	db, err := sql.Open("mysql", "username:password@tcp(127.0.0.1:3306)/testdb?charset=utf8")
 	if err != nil {
-		fmt.Println("Could not create dataabase", err)
+		fmt.Println("An error occured while trying to connect to database", err)
 		return
 	}
-	fmt.Println("Creation of database succefull")
+	defer db.Close()
+	fmt.Println("connection was successfull")
 
-	// Selecting DATABASE
-	_, err = db.Exec("USE testdb")
-	if err != nil {
-		fmt.Println("Could connect to dataabase", err)
-		return
+	// Statement to be executed is being prepared, ? is the placeholder
+	stmt, err := db.Prepare("INSERT userinfo SET username=?,departname=?,created=?")
+	checkErr(err)
+
+  // Actually executing the statement
+	res, err := stmt.Exec("astaxie", "研发部门", "2012-12-09")
+	checkErr(err)
+
+	id, err := res.LastInsertId()
+	checkErr(err)
+	fmt.Println(id)
+
+  // Read everything from the table
+	rows, err := db.Query(`SELECT * FROM userinfo`)
+	checkErr(err)
+	defer rows.Close();
+
+	// Get the information about the columntypes, that will be used for later reason
+	coltypes, err := rows.ColumnTypes(); // Reeturns slice of pointer to Column/ColumnTypes
+	for _, value := range coltypes {
+		fmt.Println(value.Name(),value.ScanType());
 	}
-	fmt.Println("Connecting to database succefull")
+	checkErr(err);
 
-	// Putting data
-	stmt, err := db.Prepare(`CREATE Table employee(id int NOT NULL AUTO_INCREMENT, first_name varchar(50), last_name varchar(30), PRIMARY KEY (id));`)
-	if err != nil {
-		fmt.Println(err.Error())
+	for rows.Next() {  // next() prepares the next result that will be used by the scan
+		var uid int
+		var username string
+		var department string
+		var created string
+		err = rows.Scan(&uid, &username, &department, &created)  // Actually read form the dataset
+		checkErr(err)
+		fmt.Println(uid)
+		fmt.Println(username)
+		fmt.Println(department)
+		fmt.Println(created)
 	}
-
-	_, err = stmt.Exec()
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("Table created successfully..")
-	}
-
 }
 
 func main() {
-	Conenctdb("root", "")
+	ConnectDB()
 }
