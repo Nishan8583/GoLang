@@ -6,6 +6,7 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -14,32 +15,121 @@ import (
 )
 
 // Req is used to creat post data to elasticsearch
-var Req *http.Request
 
-// Client is used to actualy perform the request to elasticsearch
-var Client *http.Client
+type MySQLToEs struct {
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBTable    string
+	DBIp       string
+	Req        *http.Request
+	Client     *http.Client
+}
 
-// error type
 var err error
 
-func init() {
-	Req, err = http.NewRequest("POST", "https://127.0.0.1:9200/lolta/_doc", nil)
-	if err != nil {
-		fmt.Println("Error creating request object", err)
-		return
+// New() A factory function that does the query
+func New(DBIp, DBUser, DBPassword, DBName, DBTable, ESIp, ESIndex, ESUser, ESPassword string, ESSSLVerification, ESUseAuth bool) (MySQLToEs, error) {
+	// Type to perform actions
+	mysqlT0es := MySQLToEs{
+		DBUser:     DBUser,
+		DBPassword: DBPassword,
+		DBName:     DBName,
+		DBTable:    DBTable,
+		DBIp:       DBIp,
 	}
 
-	// adding Headers
+	// Generating Requests
+	Req, err := http.NewRequest("POST", fmt.Sprintf(`%s/%s/_doc`, ESIp, ESIndex), nil)
+	if err != nil {
+		log.Println("Could not create request", err)
+		return mysqlT0es, err
+	}
 	Req.Header.Add("Content-Type", "application/json")
+	if ESUseAuth {
+		auth := b64.StdEncoding.EncodeToString([]byte("admin:admin"))
+		auth = "Basic " + auth
+		Req.Header.Add("Authorization", auth)
+	}
+	mysqlT0es.Req = Req
 
-	auth := b64.StdEncoding.EncodeToString([]byte("admin:admin"))
-	auth = "Basic " + auth
+	// Creating Client for requests
+	if ESSSLVerification {
+		mysqlT0es.Client = &http.Client{}
+	} else {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+		mysqlT0es.Client = &http.Client{Transport: tr}
+	}
+	return mysqlT0es, nil
+}
 
-	Req.Header.Add("Authorization", auth)
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-	Client = &http.Client{Transport: tr}
+// Function that connects to db and does stuff
+func (mte *MySQLToEs) PushToES() error {
 
+	// registering the database driver interface, now the function from mysql driver will work
+	db, err := sql.Open("mysql", fmt.Sprintf(`%s:%s@tcp(%s)/%s?charset=utf8`, mte.DBUser, mte.DBPassword, mte.DBIp, mte.DBName))
+	if err != nil {
+		fmt.Println("An error occured while trying to connect to database", err)
+		return err
+	}
+	defer db.Close()
+	fmt.Println("connection was successfull")
+
+	// Read everything from the table
+	rows, err := db.Query(fmt.Sprintf(`SELECT * FROM %s`, mte.DBTable))
+	if err != nil {
+		fmt.Println("Could not read data from table", err)
+		return err
+	}
+	defer rows.Close()
+
+	cols, err := rows.Columns()            // Get slice of columns name
+	vals := make([]interface{}, len(cols)) // Making a slice of any type of length number of columns
+	for i := 0; i < len(cols); i++ {
+		vals[i] = new(sql.RawBytes) // Each element is of pointer to sql.RawBytes, everything can be interpreted as this
+	}
+
+	for rows.Next() { // next() prepares the next result that will be used by the scan
+		err = rows.Scan(vals...) // Get the row data and unmarshal it in vals
+		final := `{`
+
+		for i, v := range vals {
+			switch s := v.(type) {
+			default:
+				_ = s
+				final = final + fmt.Sprintf(`"%s":"%s",`, cols[i], string(*v.(*sql.RawBytes)))
+			}
+
+		}
+		final = final + fmt.Sprintf(`"timestamp":"%s"`, time.Now().Format(time.RFC3339)) + `}`
+		fmt.Println(final)
+		mte.Req.Body = ioutil.NopCloser(strings.NewReader(final))
+
+		res, err := mte.Client.Do(mte.Req)
+		if err != nil {
+			fmt.Println("Error Posting value to elasticsearch:", err)
+			return err
+		}
+
+		content, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		defer res.Body.Close()
+		fmt.Println(string(content))
+	}
+	return err
+}
+
+func main() {
+	pusher, err := New("127.0.0.1:3306", "root", "root", "lolta", "netflow", "https://127.0.0.1:9200", "namer", "admin", "admin", false, true)
+	if (err) != nil {
+		fmt.Println("Error getting pusher", err)
+		return
+	}
+	pusher.PushToES()
 }
 
 /* CREATE DATABASE testdb;
@@ -77,65 +167,3 @@ id, err := res.LastInsertId()
 checkErr(err)
 fmt.Println(id)
 */
-
-// Function that connects to db and does stuff
-func ConnectDB() {
-
-	// registering the database driver interface, now the function from mysql driver will work
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/lolta?charset=utf8")
-	if err != nil {
-		fmt.Println("An error occured while trying to connect to database", err)
-		return
-	}
-	defer db.Close()
-	fmt.Println("connection was successfull")
-
-	// Read everything from the table
-	fmt.Println("Now reading from the table netflow")
-	rows, err := db.Query(`SELECT * FROM netflow`)
-	if err != nil {
-		fmt.Println("Could not read data from table", err)
-		return
-	}
-	defer rows.Close()
-
-	cols, err := rows.Columns()            // Get slice of columns name
-	vals := make([]interface{}, len(cols)) // Making a slice of any type of length number of columns
-	for i := 0; i < len(cols); i++ {
-		vals[i] = new(sql.RawBytes) // Each element is of pointer to sql.RawBytes, everything can be interpreted as this
-	}
-
-	for rows.Next() { // next() prepares the next result that will be used by the scan
-		err = rows.Scan(vals...) // Get the row data and unmarshal it in vals
-		final := `{`
-
-		for i, v := range vals {
-			switch s := v.(type) {
-			default:
-				_ = s
-				final = final + fmt.Sprintf(`"%s":"%s",`, cols[i], string(*v.(*sql.RawBytes)))
-			}
-
-		}
-		final = final + fmt.Sprintf(`"timestamp":"%s"`, time.Now().Format(time.RFC3339)) + `}`
-		fmt.Println(final)
-		Req.Body = ioutil.NopCloser(strings.NewReader(final))
-
-		res, err := Client.Do(Req)
-		if err != nil {
-			fmt.Println("Error Posting value to elasticsearch:", err)
-			return
-		}
-		content, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer res.Body.Close()
-		fmt.Println(string(content))
-	}
-
-}
-
-func main() {
-	ConnectDB()
-}
