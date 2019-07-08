@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"flag"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -27,6 +28,28 @@ type MySQLToEs struct {
 }
 
 var err error
+var dbip,dbuser,dbpassword,dbname,dbtablename,esip,esuser,espassword,esindex *string;
+var usessl,useauth *bool;
+
+
+func init() {
+	dbip = flag.String("dbip","127.0.0.1:3306",`Insert the Ipaddress of the MySQL Database\n Usage: -dbip 127.0.0.1:3306`);
+	dbuser = flag.String("dbuser","root",`Insert Ex: -dbuser root`)
+	dbpassword = flag.String("dbpassword","root",`Insert dbpassword : -dbpassword root`)
+	dbname = flag.String("dbname", "",`InsertDBName please Ex: -dbname test`)
+	dbtablename = flag.String("dbtablename","",`Inser DB TAble name please Ex: -dbtablename test`)
+	esip = flag.String("esip","http://127.0.0.1:9200",`Insert The elasticsearch Ip address Ex: -esip http://127.0.0.1`)
+	esuser = flag.String("esuser","",`Insert ES Username Ex: -esuer admin`)
+	espassword = flag.String("espassword","",`Insert ES Password Ex: -espassword admin`)
+	esindex = flag.String("esindex","test",`Insert elasticsearch Index to push data to Ex: -esindex test`)
+	usessl = flag.Bool("usessl",false,`Specifiy whether to use ssl while communicating with ES Ex: -usessl false`)
+	useauth = flag.Bool("useauth",false,`Specifiy whether to use authentication while communicating with ES Ex: -usessl false`)
+
+	flag.Parse();
+	fmt.Println("Creds",*dbip, *dbuser, *dbpassword, *dbname, *dbtablename, *esip, *esindex, *esuser, *esindex, *usessl, *useauth)
+
+
+}
 
 // New() A factory function that does the query
 func New(DBIp, DBUser, DBPassword, DBName, DBTable, ESIp, ESIndex, ESUser, ESPassword string, ESSSLVerification, ESUseAuth bool) (MySQLToEs, error) {
@@ -124,7 +147,9 @@ func (mte *MySQLToEs) PushToES() error {
 }
 
 func main() {
-	pusher, err := New("127.0.0.1:3306", "root", "root", "lolta", "netflow", "https://127.0.0.1:9200", "namer", "admin", "admin", false, true)
+	pusher, err := New(*dbip, *dbuser, *dbpassword, *dbname, *dbtablename, *esip, *esindex, *esuser, *esindex, *usessl, *useauth)
+
+	//pusher, err := New("127.0.0.1:3306", "root", "root", "lolta", "netflow", "https://127.0.0.1:9200", "namer", "admin", "admin", false, true)
 	if (err) != nil {
 		fmt.Println("Error getting pusher", err)
 		return
