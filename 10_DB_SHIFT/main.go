@@ -1,4 +1,13 @@
-package main
+/*
+The Package contians function that can be used to push data from MySQL to elasticsearch
+	pusher, err := New("127.0.0.1:3306", "root", "root", "lolta", "netflow", "https://127.0.0.1:9200", "namer", "admin", "admin", false, true)
+	if (err) != nil {
+		fmt.Println("Error getting pusher", err)
+		return
+	}
+	pusher.PushToES()
+*/
+package MySQLtoES
 
 import (
 	"crypto/tls"
@@ -6,7 +15,9 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"io"
 	"log"
+	"os"
 	"net/http"
 	"strings"
 	"time"
@@ -15,8 +26,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Req is used to creat post data to elasticsearch
-
+// MySQLToEs structure will hold the necessary infromation about the MySQL Database and elasticsearch
 type MySQLToEs struct {
 	DBUser     string
 	DBPassword string
@@ -31,13 +41,13 @@ var err error
 var dbip,dbuser,dbpassword,dbname,dbtablename,esip,esuser,espassword,esindex *string;
 var usessl,useauth *bool;
 
-
+// init() function is setting up the arguments that will be used by the compiled program
 func init() {
 	dbip = flag.String("dbip","127.0.0.1:3306",`Insert the Ipaddress of the MySQL Database\n Usage: -dbip 127.0.0.1:3306`);
 	dbuser = flag.String("dbuser","root",`Insert Ex: -dbuser root`)
 	dbpassword = flag.String("dbpassword","root",`Insert dbpassword : -dbpassword root`)
-	dbname = flag.String("dbname", "",`InsertDBName please Ex: -dbname test`)
-	dbtablename = flag.String("dbtablename","",`Inser DB TAble name please Ex: -dbtablename test`)
+	dbname = flag.String("dbname", "test",`InsertDBName please Ex: -dbname test`)
+	dbtablename = flag.String("dbtablename","test",`Inser DB TAble name please Ex: -dbtablename test`)
 	esip = flag.String("esip","http://127.0.0.1:9200",`Insert The elasticsearch Ip address Ex: -esip http://127.0.0.1`)
 	esuser = flag.String("esuser","",`Insert ES Username Ex: -esuer admin`)
 	espassword = flag.String("espassword","",`Insert ES Password Ex: -espassword admin`)
@@ -46,13 +56,11 @@ func init() {
 	useauth = flag.Bool("useauth",false,`Specifiy whether to use authentication while communicating with ES Ex: -usessl false`)
 
 	flag.Parse();
-	fmt.Println("Creds",*dbip, *dbuser, *dbpassword, *dbname, *dbtablename, *esip, *esindex, *esuser, *esindex, *usessl, *useauth)
-
-
 }
 
 // New() A factory function that does the query
 func New(DBIp, DBUser, DBPassword, DBName, DBTable, ESIp, ESIndex, ESUser, ESPassword string, ESSSLVerification, ESUseAuth bool) (MySQLToEs, error) {
+
 	// Type to perform actions
 	mysqlT0es := MySQLToEs{
 		DBUser:     DBUser,
@@ -69,6 +77,7 @@ func New(DBIp, DBUser, DBPassword, DBName, DBTable, ESIp, ESIndex, ESUser, ESPas
 		return mysqlT0es, err
 	}
 	Req.Header.Add("Content-Type", "application/json")
+	// If using authentication flag is provided
 	if ESUseAuth {
 		auth := b64.StdEncoding.EncodeToString([]byte("admin:admin"))
 		auth = "Basic " + auth
@@ -76,7 +85,7 @@ func New(DBIp, DBUser, DBPassword, DBName, DBTable, ESIp, ESIndex, ESUser, ESPas
 	}
 	mysqlT0es.Req = Req
 
-	// Creating Client for requests
+	// if SSLVerification is enable to true
 	if ESSSLVerification {
 		mysqlT0es.Client = &http.Client{}
 	} else {
@@ -134,7 +143,11 @@ func (mte *MySQLToEs) PushToES() error {
 			fmt.Println("Error Posting value to elasticsearch:", err)
 			return err
 		}
-
+		wr, err := io.Copy(mte,res.Body)
+		if (err != nil) {
+			fmt.Println(err,wr);
+		}
+		/*
 		content, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			fmt.Println(err)
@@ -142,11 +155,20 @@ func (mte *MySQLToEs) PushToES() error {
 		}
 		defer res.Body.Close()
 		fmt.Println(string(content))
-	}
+	}*/
+}
 	return err
 }
 
+func (mte *MySQLToEs) Write(p []byte) (n int, err error) {
+	fmt.Println(string(p));
+	return 1,nil
+}
+// main() function of the program
 func main() {
+	if len(os.Args) < 2{
+		fmt.Println("No arguments provided wil use default values. Please use ./MtoE --help for more information")
+	}
 	pusher, err := New(*dbip, *dbuser, *dbpassword, *dbname, *dbtablename, *esip, *esindex, *esuser, *esindex, *usessl, *useauth)
 
 	//pusher, err := New("127.0.0.1:3306", "root", "root", "lolta", "netflow", "https://127.0.0.1:9200", "namer", "admin", "admin", false, true)
@@ -157,7 +179,7 @@ func main() {
 	pusher.PushToES()
 }
 
-/* CREATE DATABASE testdb;
+/* Sample Database Creation
 mysql> CREATE DATABASE testdb;
 Query OK, 1 row affected (0.01 sec)
 
