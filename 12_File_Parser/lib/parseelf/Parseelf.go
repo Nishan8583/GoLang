@@ -74,6 +74,7 @@ func init() {
 // ELF interface is used to integrate both 32 and 64 bit
 type ELF interface {
 	DisplayELF()
+	ParseProgramHeader() error
 }
 
 // Both of the 32 bit and 64 bit has same field values but it will later be helpful for calling methods
@@ -88,14 +89,14 @@ type elfHeader32 struct {
 	FileType                     string // The type of ELF File
 	MachineType                  string // The Target ISA
 	EVersion                     byte   // Elf Version
-	EntryPoint                   []byte // Entry postring Address
-	ProgramHeaderOffset          []byte // Offset to program header
-	SectionHeaderOffset          []byte // Offset to Section Header
-	ELFHeaderSize                []byte // Size Of this ELF Header
-	ProgramHeaderSize            []byte // SizeOfProgramHeader
-	ProgramHeaderNumberOfEntries []byte // NumberOfEntriesInProgramHeaders
-	SectionHeaderSize            []byte // SizeOfSectionHeader
-	SectionHeaderNumberOfEntries []byte // Number of Entries in Section Headers
+	EntryPoint                   uint32 // Entry postring Address
+	ProgramHeaderOffset          uint32 // Offset to program header
+	SectionHeaderOffset          uint32 // Offset to Section Header
+	ELFHeaderSize                uint16 // Size Of this ELF Header
+	ProgramHeaderSize            uint16 // SizeOfProgramHeader
+	ProgramHeaderNumberOfEntries uint16 // NumberOfEntriesInProgramHeaders
+	SectionHeaderSize            uint16 // SizeOfSectionHeader
+	SectionHeaderNumberOfEntries uint16 // Number of Entries in Section Headers
 	IndexOfSectionHeaderTable    byte   // Index to e_shstrndx
 	Filename                     string // The filename of the file
 }
@@ -111,14 +112,14 @@ type elfHeader64 struct {
 	FileType                     string // The type of ELF File
 	MachineType                  string // The Target ISA
 	EVersion                     byte   // Elf Version
-	EntryPoint                   []byte // Entry postring Address
-	ProgramHeaderOffset          []byte // Offset to program header
-	SectionHeaderOffset          []byte // Offset to Section Header
-	ELFHeaderSize                []byte // Size Of this ELF Header
-	ProgramHeaderSize            []byte // SizeOfProgramHeader
-	ProgramHeaderNumberOfEntries []byte // NumberOfEntriesInProgramHeaders
-	SectionHeaderSize            []byte // SizeOfSectionHeader
-	SectionHeaderNumberOfEntries []byte // Number of Entries in Section Headers
+	EntryPoint                   uint64 // Entry postring Address
+	ProgramHeaderOffset          uint64 // Offset to program header
+	SectionHeaderOffset          uint64 // Offset to Section Header
+	ELFHeaderSize                uint16 // Size Of this ELF Header
+	ProgramHeaderSize            uint16 // SizeOfProgramHeader
+	ProgramHeaderNumberOfEntries uint16 // NumberOfEntriesInProgramHeaders
+	SectionHeaderSize            uint16 // SizeOfSectionHeader
+	SectionHeaderNumberOfEntries uint16 // Number of Entries in Section Headers
 	IndexOfSectionHeaderTable    byte   // Index to e_shstrndx
 	Filename                     string // The filename
 }
@@ -133,9 +134,9 @@ func (elf elfHeader32) DisplayELF() {
 	fmt.Println("FileType:", elf.FileType)
 	fmt.Println("ISA:", elf.MachineType)
 	fmt.Println("ELF Version:", elf.EVersion)
-	fmt.Printf("EntryPoint: 0x%x\n", binary.LittleEndian.Uint32(elf.EntryPoint))
-	fmt.Printf("ProgramHeaderOffset: 0x%x\n", binary.LittleEndian.Uint32(elf.ProgramHeaderOffset))
-	fmt.Printf("SectionHeaderOffset: 0x%x\n", binary.LittleEndian.Uint32(elf.SectionHeaderOffset))
+	fmt.Printf("EntryPoint: 0x%x\n", elf.EntryPoint)
+	fmt.Printf("ProgramHeaderOffset: 0x%x\n", elf.ProgramHeaderOffset)
+	fmt.Printf("SectionHeaderOffset: 0x%x\n", elf.SectionHeaderOffset)
 	fmt.Printf("ELF Header Size: 0x%x\n", elf.ELFHeaderSize)
 	fmt.Printf("Program Header Size: 0x%x\n", elf.ProgramHeaderSize)
 	fmt.Printf("Program Header Number Of Entries: 0x%x\n", elf.ProgramHeaderNumberOfEntries)
@@ -154,19 +155,19 @@ func (elf elfHeader64) DisplayELF() {
 	fmt.Println("FileType:", elf.FileType)
 	fmt.Println("ISA:", elf.MachineType)
 	fmt.Println("ELF Version:", elf.EVersion)
-	fmt.Printf("EntryPoint: 0x%x\n", binary.LittleEndian.Uint32(elf.EntryPoint))
-	fmt.Printf("ProgramHeaderOffset: 0x%x\n", binary.LittleEndian.Uint64(elf.ProgramHeaderOffset))
-	fmt.Printf("SectionHeaderOffset: 0x%x\n", binary.LittleEndian.Uint64(elf.SectionHeaderOffset))
-	fmt.Printf("ELF Header Size: %d\n", binary.LittleEndian.Uint16(elf.ELFHeaderSize))
-	fmt.Printf("Program Header Size: %d\n", binary.LittleEndian.Uint16(elf.ProgramHeaderSize))
-	fmt.Printf("Program Header Number Of Entries: %d\n", binary.LittleEndian.Uint16(elf.ProgramHeaderNumberOfEntries))
-	fmt.Printf("Section Header Size: %d\n", binary.LittleEndian.Uint16(elf.SectionHeaderSize))
-	fmt.Printf("Section Header Number Of Entries: %d\n", binary.LittleEndian.Uint16(elf.SectionHeaderNumberOfEntries))
+	fmt.Printf("EntryPoint: 0x%x\n", elf.EntryPoint)
+	fmt.Printf("ProgramHeaderOffset: 0x%x\n", elf.ProgramHeaderOffset)
+	fmt.Printf("SectionHeaderOffset: 0x%x\n", elf.SectionHeaderOffset)
+	fmt.Printf("ELF Header Size: %d\n", elf.ELFHeaderSize)
+	fmt.Printf("Program Header Size: %d\n", elf.ProgramHeaderSize)
+	fmt.Printf("Program Header Number Of Entries: %d\n", elf.ProgramHeaderNumberOfEntries)
+	fmt.Printf("Section Header Size: %d\n", elf.SectionHeaderSize)
+	fmt.Printf("Section Header Number Of Entries: %d\n", elf.SectionHeaderNumberOfEntries)
 	fmt.Printf("Index Section: %d\n", elf.IndexOfSectionHeaderTable)
 }
 
 //ElfUnmarshal ... ELF will take a slice of byte and return elfHeader type
-func ElfUnmarshal(cont []byte) (ELF, error) {
+func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 
 	// If 32 bit
 	if cont[4] == 1 {
@@ -179,15 +180,16 @@ func ElfUnmarshal(cont []byte) (ELF, error) {
 			FileType:                     fileType[int(cont[0x10])],
 			MachineType:                  machineType[cont[0x12]],
 			EVersion:                     cont[0x14],
-			EntryPoint:                   cont[0x18:0x1c],
-			ProgramHeaderOffset:          cont[0x1c:0x20],
-			SectionHeaderOffset:          cont[0x20:0x28],
-			ELFHeaderSize:                cont[0x28:0x2a],
-			ProgramHeaderSize:            cont[0x2a:0x2c],
-			ProgramHeaderNumberOfEntries: cont[0x2C:0x2e],
-			SectionHeaderSize:            cont[0x2e:0x30],
-			SectionHeaderNumberOfEntries: cont[0x30:0x32],
+			EntryPoint:                   binary.LittleEndian.Uint32(cont[0x18:0x1c]),
+			ProgramHeaderOffset:          binary.LittleEndian.Uint32(cont[0x1c:0x20]),
+			SectionHeaderOffset:          binary.LittleEndian.Uint32(cont[0x20:0x24]),
+			ELFHeaderSize:                binary.LittleEndian.Uint16(cont[0x28:0x2a]),
+			ProgramHeaderSize:            binary.LittleEndian.Uint16(cont[0x2a:0x2c]),
+			ProgramHeaderNumberOfEntries: binary.LittleEndian.Uint16(cont[0x2C:0x2e]),
+			SectionHeaderSize:            binary.LittleEndian.Uint16(cont[0x2e:0x30]),
+			SectionHeaderNumberOfEntries: binary.LittleEndian.Uint16(cont[0x30:0x32]),
 			IndexOfSectionHeaderTable:    cont[0x32],
+			Filename:                     filename,
 		}
 		return elf, nil
 	}
@@ -200,15 +202,16 @@ func ElfUnmarshal(cont []byte) (ELF, error) {
 		FileType:                     fileType[int(cont[0x10])],
 		MachineType:                  machineType[cont[0x12]],
 		EVersion:                     cont[0x14],
-		EntryPoint:                   cont[0x18:0x20],
-		ProgramHeaderOffset:          cont[0x20:0x28],
-		SectionHeaderOffset:          cont[0x28:0x30],
-		ELFHeaderSize:                cont[0x34:0x36],
-		ProgramHeaderSize:            cont[0x36:0x38],
-		ProgramHeaderNumberOfEntries: cont[0x38:0x3a],
-		SectionHeaderSize:            cont[0x3a:0x3c],
-		SectionHeaderNumberOfEntries: cont[0x3c:0x3e],
+		EntryPoint:                   binary.LittleEndian.Uint64(cont[0x18:0x20]),
+		ProgramHeaderOffset:          binary.LittleEndian.Uint64(cont[0x20:0x28]),
+		SectionHeaderOffset:          binary.LittleEndian.Uint64(cont[0x28:0x30]),
+		ELFHeaderSize:                binary.LittleEndian.Uint16(cont[0x34:0x36]),
+		ProgramHeaderSize:            binary.LittleEndian.Uint16(cont[0x36:0x38]),
+		ProgramHeaderNumberOfEntries: binary.LittleEndian.Uint16(cont[0x38:0x3a]),
+		SectionHeaderSize:            binary.LittleEndian.Uint16(cont[0x3a:0x3c]),
+		SectionHeaderNumberOfEntries: binary.LittleEndian.Uint16(cont[0x3c:0x3e]),
 		IndexOfSectionHeaderTable:    cont[0x3e],
+		Filename:                     filename,
 	}
 	return elf, nil
 }
@@ -226,7 +229,7 @@ func ParseFile(filename string) (ELF, error) {
 
 	// Checking if the file is actually a valid ELF file
 	if bytes.Equal(content[0:4], []byte{0x7f, 0x45, 0x4c, 0x46}) {
-		elf, err = ElfUnmarshal(content)
+		elf, err = ElfUnmarshal(content, filename)
 		if err != nil {
 			return nil, errors.New("Error while calling the parsing function" + err.Error())
 		}
