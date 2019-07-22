@@ -74,7 +74,9 @@ func init() {
 // ELF interface is used to integrate both 32 and 64 bit
 type ELF interface {
 	DisplayELF()
-	ParseProgramHeader() error
+	ParseProgramHeader() (ELF, error)
+	DisplayProgramHeader()
+	ParseSegments()
 }
 
 // Both of the 32 bit and 64 bit has same field values but it will later be helpful for calling methods
@@ -99,6 +101,8 @@ type elfHeader32 struct {
 	SectionHeaderNumberOfEntries uint16 // Number of Entries in Section Headers
 	IndexOfSectionHeaderTable    byte   // Index to e_shstrndx
 	Filename                     string // The filename of the file
+	ProgramHeader                []PH32
+	FileContents                 []byte // Content of files
 }
 
 // Elf Header for 64 bit
@@ -122,6 +126,8 @@ type elfHeader64 struct {
 	SectionHeaderNumberOfEntries uint16 // Number of Entries in Section Headers
 	IndexOfSectionHeaderTable    byte   // Index to e_shstrndx
 	Filename                     string // The filename
+	ProgramHeader                []PH64
+	FileContents                 []byte // Content of files
 }
 
 // DisplayELF() will display the elf Header Values
@@ -190,10 +196,13 @@ func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 			SectionHeaderNumberOfEntries: binary.LittleEndian.Uint16(cont[0x30:0x32]),
 			IndexOfSectionHeaderTable:    cont[0x32],
 			Filename:                     filename,
+			ProgramHeader:                nil,
+			FileContents:                 cont,
 		}
 		return elf, nil
 	}
-	elf := elfHeader64{ // If the file is 64 bit
+
+	elf := elfHeader64{
 		Magic:                        cont[0:4],
 		Class:                        cpu[cont[4]],
 		Data:                         endianness[cont[5]],
@@ -212,6 +221,8 @@ func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 		SectionHeaderNumberOfEntries: binary.LittleEndian.Uint16(cont[0x3c:0x3e]),
 		IndexOfSectionHeaderTable:    cont[0x3e],
 		Filename:                     filename,
+		ProgramHeader:                nil,
+		FileContents:                 cont,
 	}
 	return elf, nil
 }
