@@ -103,27 +103,17 @@ func (elf elfHeader64) ParseProgramHeader() (ELF, error) {
 }
 
 func (elf elfHeader32) DisplayProgramHeader() {
+	fmt.Printf("%-18s%-18s%-10s%-18s%-18s%-18s%-18s%-18s\n", "Flag", "SegmentType", "Offset", "VirtualAddress", "PhysicalAddress", "SegmentSize", "SegmentSizeInMemory", "Alignment")
+
 	for _, value := range elf.ProgramHeader {
-		fmt.Printf("Flag:\t\t %v\n", value.PFlag)
-		fmt.Printf("Segment Type:\t\t %v\n", value.PType)
-		fmt.Printf("Offset:\t\t %v\n", value.POffset)
-		fmt.Printf("Virutal Address:0x\t\t %x\n", value.Pvaddr)
-		fmt.Printf("Physical Address:0x\t\t %x\n", value.PAddr)
-		fmt.Printf("Segment Size:\t\t %v\n", value.PFileSize)
-		fmt.Printf("Segment Size Memory:\t\t %v\n", value.PMemSize)
-		fmt.Printf("Alignment:\t\t %v\n", value.PAlign)
+		fmt.Printf("%-18d%-18s%-18d0x%-18x0x%-18x%-18d%-18d%-18d\n",
+			value.PFlag, value.PType, value.POffset, value.Pvaddr, value.PAddr, value.PFileSize, value.PMemSize, value.PAlign)
 	}
 }
 
 func (elf elfHeader64) DisplayProgramHeader() {
 	for _, value := range elf.ProgramHeader {
-		fmt.Printf("Flag:\t\t %v\n", value.PFlag)
-		fmt.Printf("Segment Type:\t\t %v\n", value.PType)
-		fmt.Printf("Offset:\t\t %v\n", value.POffset)
-		fmt.Printf("Virutal Address:0x%10x\n", value.Pvaddr)
-		fmt.Printf("Physical Address:0x\t\t %x\n", value.PAddr)
-		fmt.Printf("Segment Size:\t\t %v\n", value.PFileSize)
-		fmt.Printf("Segment Size Memory:\t\t %v\n", value.PMemSize)
-		fmt.Printf("Alignment:\t\t %v\n", value.PAlign)
+		fmt.Printf("%-18d%-18s%-18d0x%-18x0x%-18x%-18d%-18d%-18d\n",
+			value.PFlag, value.PType, value.POffset, value.Pvaddr, value.PAddr, value.PFileSize, value.PMemSize, value.PAlign)
 	}
 }

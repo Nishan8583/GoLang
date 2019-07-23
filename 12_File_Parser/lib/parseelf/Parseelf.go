@@ -132,7 +132,14 @@ type elfHeader64 struct {
 
 // DisplayELF() will display the elf Header Values
 func (elf elfHeader32) DisplayELF() {
-	fmt.Println("Magic Byte:", elf.Magic)
+	/*fmt.Printf("%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v\n",
+			"MagicByte", "Class", "Data", "OSVersion", "ABIVersion", "FileType", "MachineType", "Version", "Entrypoint",
+			"PHOffset", "SHOffset", "ELFHeaderSize", "PHSize", "PHNumberofEntries", "SHSize", "SHNumberOfEntries", "IndexSection")
+		fmt.Printf("%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v\n",
+	elf.Magic,elf.Class,elf.Data,elf.OSVersion,elf.ABIVersion,elf.MachineType,elf.EVersion,elf.EntryPoint,elf.ProgramHeaderOffset,
+	elf.SectionHeaderOffset,elf.ELFHeaderSize,elf.ProgramHeaderSize,elf.ProgramHeaderNumberOfEntries,
+	elf.SectionHeaderSize,elf.SectionHeaderNumberOfEntries elf.IndexOfSectionHeaderTable)*/
+	fmt.Println("%-20vMagic Byte:", elf.Magic)
 	fmt.Printf("Class: 0x%x\n", elf.Class)
 	fmt.Println("Data:", elf.Data)
 	fmt.Println("OSVersion:", elf.OSVersion)
@@ -141,13 +148,13 @@ func (elf elfHeader32) DisplayELF() {
 	fmt.Println("ISA:", elf.MachineType)
 	fmt.Println("ELF Version:", elf.EVersion)
 	fmt.Printf("EntryPoint: 0x%x\n", elf.EntryPoint)
-	fmt.Printf("ProgramHeaderOffset: 0x%x\n", elf.ProgramHeaderOffset)
-	fmt.Printf("SectionHeaderOffset: 0x%x\n", elf.SectionHeaderOffset)
+	fmt.Printf("PHOffset: 0x%x\n", elf.ProgramHeaderOffset)
+	fmt.Printf("SHOffset: 0x%x\n", elf.SectionHeaderOffset)
 	fmt.Printf("ELF Header Size: 0x%x\n", elf.ELFHeaderSize)
-	fmt.Printf("Program Header Size: 0x%x\n", elf.ProgramHeaderSize)
-	fmt.Printf("Program Header Number Of Entries: 0x%x\n", elf.ProgramHeaderNumberOfEntries)
-	fmt.Printf("Section Header Size: 0x%x\n", elf.SectionHeaderSize)
-	fmt.Printf("Section Header Number Of Entries: 0x%x\n", elf.SectionHeaderNumberOfEntries)
+	fmt.Printf("PHSize: 0x%x\n", elf.ProgramHeaderSize)
+	fmt.Printf("PHNumOfEntries: 0x%x\n", elf.ProgramHeaderNumberOfEntries)
+	fmt.Printf("SHSize: 0x%x\n", elf.SectionHeaderSize)
+	fmt.Printf("SHNumOfEntries: 0x%x\n", elf.SectionHeaderNumberOfEntries)
 	fmt.Printf("Index Section: 0x%x\n", elf.IndexOfSectionHeaderTable)
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -29,6 +30,9 @@ func main() {
 	elf, err := parseelf.ParseFile(os.Args[1])
 	errorHandle(err, "Error while parsing file")
 	elf, err = elf.ParseProgramHeader()
-
+	elf.DisplayELF()
+	fmt.Println("****")
+	elf.DisplayProgramHeader()
+	fmt.Println("****")
 	elf.ParseSegments()
 }
