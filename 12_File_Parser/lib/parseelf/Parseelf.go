@@ -76,7 +76,7 @@ type ELF interface {
 	DisplayELF()
 	ParseProgramHeader() (ELF, error)
 	DisplayProgramHeader()
-	ParseSegments()
+	ParseSegments() ELF
 }
 
 // Both of the 32 bit and 64 bit has same field values but it will later be helpful for calling methods
@@ -101,8 +101,9 @@ type elfHeader32 struct {
 	SectionHeaderNumberOfEntries uint16 // Number of Entries in Section Headers
 	IndexOfSectionHeaderTable    byte   // Index to e_shstrndx
 	Filename                     string // The filename of the file
-	ProgramHeader                []PH32
+	ProgramHeader                []PH32 // Program Headers
 	FileContents                 []byte // Content of files
+	SectionHeaders               []SH32 // Section Headers
 }
 
 // Elf Header for 64 bit
@@ -128,6 +129,7 @@ type elfHeader64 struct {
 	Filename                     string // The filename
 	ProgramHeader                []PH64
 	FileContents                 []byte // Content of files
+	SectionHeaders               []SH64 // Section Headers
 }
 
 // DisplayELF() will display the elf Header Values
@@ -205,6 +207,7 @@ func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 			Filename:                     filename,
 			ProgramHeader:                nil,
 			FileContents:                 cont,
+			SectionHeaders:               nil,
 		}
 		return elf, nil
 	}
@@ -230,6 +233,7 @@ func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 		Filename:                     filename,
 		ProgramHeader:                nil,
 		FileContents:                 cont,
+		SectionHeaders:               nil,
 	}
 	return elf, nil
 }

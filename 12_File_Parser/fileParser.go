@@ -34,5 +34,6 @@ func main() {
 	fmt.Println("****")
 	elf.DisplayProgramHeader()
 	fmt.Println("****")
-	elf.ParseSegments()
+	s := elf.ParseSegments()
+	fmt.Println(s)
 }
