@@ -48,9 +48,9 @@ func init() {
 	}
 }
 
-// (elf elfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 32 bit
+// (elf ElfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 32 bit
 // Since the interface methods works with value symantec, a local copy is created, so we need to return it.
-func (elf elfHeader32) ParseProgramHeader() (ELF, error) {
+func (elf ElfHeader32) ParseProgramHeader() (ELF, error) {
 	var pHeaders []PH32
 
 	firstOff := elf.ProgramHeaderOffset       // The first progrma header
@@ -75,9 +75,9 @@ func (elf elfHeader32) ParseProgramHeader() (ELF, error) {
 	return elf, nil
 }
 
-// (elf elfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 64 bit
+// (elf ElfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 64 bit
 // Since the interface methods works with value symantec, a local copy is created, so we need to return it.
-func (elf elfHeader64) ParseProgramHeader() (ELF, error) {
+func (elf ElfHeader64) ParseProgramHeader() (ELF, error) {
 	var pHeaders []PH64
 
 	firstOff := elf.ProgramHeaderOffset
@@ -102,7 +102,7 @@ func (elf elfHeader64) ParseProgramHeader() (ELF, error) {
 	return elf, nil
 }
 
-func (elf elfHeader32) DisplayProgramHeader() {
+func (elf ElfHeader32) DisplayProgramHeader() {
 	fmt.Printf("%-18s%-18s%-10s%-18s%-18s%-18s%-18s%-18s\n", "Flag", "SegmentType", "Offset", "VirtualAddress", "PhysicalAddress", "SegmentSize", "SegmentSizeInMemory", "Alignment")
 
 	for _, value := range elf.ProgramHeader {
@@ -111,7 +111,7 @@ func (elf elfHeader32) DisplayProgramHeader() {
 	}
 }
 
-func (elf elfHeader64) DisplayProgramHeader() {
+func (elf ElfHeader64) DisplayProgramHeader() {
 	for _, value := range elf.ProgramHeader {
 		fmt.Printf("%-18d%-18s%-18d0x%-18x0x%-18x%-18d%-18d%-18d\n",
 			value.PFlag, value.PType, value.POffset, value.Pvaddr, value.PAddr, value.PFileSize, value.PMemSize, value.PAlign)

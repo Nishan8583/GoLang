@@ -80,8 +80,8 @@ type ELF interface {
 }
 
 // Both of the 32 bit and 64 bit has same field values but it will later be helpful for calling methods
-// elfHeader for 32 bit will contin the ELF Header part
-type elfHeader32 struct {
+// ElfHeader for 32 bit will contin the ELF Header part
+type ElfHeader32 struct {
 	Magic                        []byte // The first 4 bytes
 	Class                        int    // 32 Or 64 Bit
 	Data                         string // 1 or 2, little or Big
@@ -107,7 +107,7 @@ type elfHeader32 struct {
 }
 
 // Elf Header for 64 bit
-type elfHeader64 struct {
+type ElfHeader64 struct {
 	Magic                        []byte // The first 4 bytes
 	Class                        int    // 32 Or 64 Bit
 	Data                         string // 1 or 2, little or Big
@@ -133,7 +133,7 @@ type elfHeader64 struct {
 }
 
 // DisplayELF() will display the elf Header Values
-func (elf elfHeader32) DisplayELF() {
+func (elf ElfHeader32) DisplayELF() {
 	/*fmt.Printf("%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v,%-16v\n",
 			"MagicByte", "Class", "Data", "OSVersion", "ABIVersion", "FileType", "MachineType", "Version", "Entrypoint",
 			"PHOffset", "SHOffset", "ELFHeaderSize", "PHSize", "PHNumberofEntries", "SHSize", "SHNumberOfEntries", "IndexSection")
@@ -161,7 +161,7 @@ func (elf elfHeader32) DisplayELF() {
 }
 
 // DisplayELF() will display the elf Header Values
-func (elf elfHeader64) DisplayELF() {
+func (elf ElfHeader64) DisplayELF() {
 	fmt.Println("Magic Byte:", elf.Magic)
 	fmt.Printf("Class: 0x%x\n", elf.Class)
 	fmt.Println("Data:", elf.Data)
@@ -181,12 +181,12 @@ func (elf elfHeader64) DisplayELF() {
 	fmt.Printf("Index Section: %d\n", elf.IndexOfSectionHeaderTable)
 }
 
-//ElfUnmarshal ... ELF will take a slice of byte and return elfHeader type
+//ElfUnmarshal ... ELF will take a slice of byte and return ElfHeader type
 func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 
 	// If 32 bit
 	if cont[4] == 1 {
-		elf := elfHeader32{
+		elf := ElfHeader32{
 			Magic:                        cont[0:4],
 			Class:                        cpu[cont[4]],
 			Data:                         endianness[cont[5]],
@@ -212,7 +212,7 @@ func ElfUnmarshal(cont []byte, filename string) (ELF, error) {
 		return elf, nil
 	}
 
-	elf := elfHeader64{
+	elf := ElfHeader64{
 		Magic:                        cont[0:4],
 		Class:                        cpu[cont[4]],
 		Data:                         endianness[cont[5]],

@@ -75,7 +75,7 @@ type SH64 struct {
 	EntrySize   uint64 // 	Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
 }
 
-func (elf elfHeader32) ParseSegments() ELF {
+func (elf ElfHeader32) ParseSegments() ELF {
 
 	// If no section just return
 	if elf.SectionHeaderOffset == 0 {
@@ -111,7 +111,7 @@ func (elf elfHeader32) ParseSegments() ELF {
 	return elf
 } ////
 
-func (elf elfHeader64) ParseSegments() ELF {
+func (elf ElfHeader64) ParseSegments() ELF {
 	if elf.SectionHeaderOffset == 0 {
 		fmt.Println("No Section Header")
 		return nil
