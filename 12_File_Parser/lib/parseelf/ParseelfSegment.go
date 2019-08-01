@@ -61,6 +61,7 @@ type SH32 struct {
 	ExtraInfo    uint32 // Contains extra information about the section
 	Alignment    uint32 // Contains the required alignment of the section
 	EntrySize    uint32 // 	Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
+	Name         string
 }
 
 // SH64 ...
@@ -73,6 +74,7 @@ type SH64 struct {
 	Size        uint64 //  	Size in bytes of the section in the file image. May be 0.
 	Alignment   uint64 // Contains the required alignment of the section
 	EntrySize   uint64 // 	Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
+	Name        string
 }
 
 func (elf ElfHeader32) ParseSegments() ELF {
@@ -108,6 +110,24 @@ func (elf ElfHeader32) ParseSegments() ELF {
 		begin = begin + 0x28
 	}
 	elf.SectionHeaders = sliceOfSH32
+	// Now adding Section Name
+	sectionHeaderTable := elf.SectionHeaders[elf.IndexOfSectionHeaderTable]
+	begin2 := sectionHeaderTable.Offset // This is where the section header table is located in file
+	for key, value := range elf.SectionHeaders {
+
+		i := value.IndexOffset
+		start := begin2 + i + 1
+		char := ""
+		for {
+			if elf.FileContents[start] == 0 {
+				break
+			}
+			char = char + string(elf.FileContents[start])
+			start = start + 1
+
+		}
+		elf.SectionHeaders[key].Name = char
+	}
 	return elf
 } ////
 
@@ -135,5 +155,54 @@ func (elf ElfHeader64) ParseSegments() ELF {
 		begin = begin + 0x40
 	}
 	elf.SectionHeaders = sliceOfSH64
+
+	// Now adding Section Name
+	sectionHeaderTable := elf.SectionHeaders[elf.IndexOfSectionHeaderTable]
+	begin2 := sectionHeaderTable.Offset // This is where the section header table is located in file
+	for key, value := range elf.SectionHeaders {
+
+		i := value.IndexOffset
+		start := begin2 + uint64(i) + 1
+		char := ""
+		for {
+			if elf.FileContents[start] == 0 {
+				break
+			}
+			char = char + string(elf.FileContents[start])
+			start = start + 1
+
+		}
+		elf.SectionHeaders[key].Name = char
+	}
 	return elf
+
+}
+
+func (elf ElfHeader32) DisplaySegments() {
+	fmt.Printf("\n-----Section Header------\n")
+	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
+		"SectionSize", "ShLink")
+
+	//
+	for _, value := range elf.SectionHeaders {
+		fmt.Printf("%-18d%-18s%-18s0x%-18x%-18x%-18d%-18d%-18d\n",
+			value.IndexOffset, value.Type, value.Flags, value.VirAddr, value.Offset, value.Size)
+	}
+	fmt.Printf("-----Section Header------\n\n")
+
+}
+
+func (elf ElfHeader64) DisplaySegments() {
+	fmt.Printf("\n-----Section Header------\n")
+	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
+		"SectionSize", "ShLink")
+
+	//
+	for _, value := range elf.SectionHeaders {
+		fmt.Printf("%-18s%-18s%-18s0x%-18x%-18x%-18d%-18d%-18d\n",
+			value.Name, value.Type, value.Flags, value.VirAddr, value.Offset, value.Size)
+
+	}
+	fmt.Printf("-----Section Header------\n\n")
+
 }

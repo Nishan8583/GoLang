@@ -35,5 +35,16 @@ func main() {
 	elf.DisplayProgramHeader()
 	fmt.Println("****")
 	s := elf.ParseSegments()
-	fmt.Println(s.(parseelf.ElfHeader64).SectionHeaders)
+	t := s.(parseelf.ElfHeader64)
+	//fmt.Println(s.(parseelf.ElfHeader64).SectionHeaders)
+	t.DisplaySegments()
+	fmt.Println(t.SectionHeaders[t.IndexOfSectionHeaderTable].Offset)
+	fmt.Println("trying to get sectio name")
+
+	for key, value := range t.SectionHeaders {
+		if value.Name == "init" {
+			fmt.Println("Got it ", key, value)
+		}
+	}
+
 }

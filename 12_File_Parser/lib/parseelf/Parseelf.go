@@ -77,6 +77,7 @@ type ELF interface {
 	ParseProgramHeader() (ELF, error)
 	DisplayProgramHeader()
 	ParseSegments() ELF
+	DisplaySegments()
 }
 
 // Both of the 32 bit and 64 bit has same field values but it will later be helpful for calling methods
