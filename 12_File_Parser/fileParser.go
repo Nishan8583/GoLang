@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -42,28 +41,7 @@ func main() {
 	fmt.Println(t.SectionHeaders[t.IndexOfSectionHeaderTable].Offset)
 	fmt.Println("trying to get sectio name")
 
-	new := make([]byte, len(t.FileContents))
-	copy(new, t.FileContents)
-	c, err := ioutil.ReadFile("hello.bin")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	for _, v := range c {
-		new = append(new, v)
-	}
-	for key, value := range t.SectionHeaders {
-		if value.Name == "text" {
-			fmt.Println("Got it ", key, value)
-			fmt.Println(new[value.Off[0]:value.Off[1]])
-			new[value.Off[0]] = 0x28
-			new[value.Off[0]+0x1] = 0x1a
-			fmt.Println(new[value.Off[0]:value.Off[1]])
-		}
-	}
-	err = ioutil.WriteFile("newfile", new, 0666)
-	if err != nil {
-		log.Println(err)
-	}
+	// tryint to disassemble text section first
+	t.Disassemble()
 
 }
