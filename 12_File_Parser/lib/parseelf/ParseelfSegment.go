@@ -62,6 +62,7 @@ type SH32 struct {
 	Alignment    uint32 // Contains the required alignment of the section
 	EntrySize    uint32 // 	Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
 	Name         string
+	Off          []uint32
 }
 
 // SH64 ...
@@ -75,6 +76,7 @@ type SH64 struct {
 	Alignment   uint64 // Contains the required alignment of the section
 	EntrySize   uint64 // 	Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
 	Name        string
+	Off         []uint64
 }
 
 func (elf ElfHeader32) ParseSegments() ELF {
@@ -105,6 +107,7 @@ func (elf ElfHeader32) ParseSegments() ELF {
 			ExtraInfo:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x1c):(begin + 20)]),
 			Alignment:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x20):(begin + 0x24)]),
 			EntrySize:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x24):(begin + 0x28)]),
+			Off:          []uint32{(begin + 0x10), (begin + 0x14)},
 		}
 		sliceOfSH32 = append(sliceOfSH32, sh)
 		begin = begin + 0x28
@@ -150,6 +153,7 @@ func (elf ElfHeader64) ParseSegments() ELF {
 			Size:        binary.LittleEndian.Uint64(elf.FileContents[(begin + 0x20):(begin + 0x28)]),
 			Alignment:   binary.LittleEndian.Uint64(elf.FileContents[(begin + 0x30):(begin + 0x38)]),
 			EntrySize:   binary.LittleEndian.Uint64(elf.FileContents[(begin + 0x38):(begin + 0x40)]),
+			Off:         []uint64{(begin + 0x18), (begin + 0x20)},
 		}
 		sliceOfSH64 = append(sliceOfSH64, sh)
 		begin = begin + 0x40

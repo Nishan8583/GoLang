@@ -1,19 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"./lib/parseelf"
 )
-
-// ELF interface is used to integrate both 32 and 64 bit
-type ELF interface {
-	DisplayELF()
-	ParseProgramHeader() (ELF, error)
-	DisplayProgramHeader()
-}
 
 // Handle ERROR
 func errorHandle(err error, msg string) {
@@ -22,26 +14,22 @@ func errorHandle(err error, msg string) {
 		os.Exit(-1)
 	}
 }
+
+// The main function of program
 func main() {
+
 	if len(os.Args) < 2 {
 		log.Println("Not enough arguments")
 		os.Exit(-1)
 	}
+
 	elf, err := parseelf.ParseFile(os.Args[1])
 	errorHandle(err, "Error while parsing file")
+
 	elf, err = elf.ParseProgramHeader()
 	elf.DisplayELF()
-	fmt.Println("****")
-	elf.DisplayProgramHeader()
-	fmt.Println("****")
-	s := elf.ParseSegments()
-	t := s.(parseelf.ElfHeader64)
-	//fmt.Println(s.(parseelf.ElfHeader64).SectionHeaders)
-	t.DisplaySegments()
-	fmt.Println(t.SectionHeaders[t.IndexOfSectionHeaderTable].Offset)
-	fmt.Println("trying to get sectio name")
-
-	// tryint to disassemble text section first
-	t.Disassemble()
+	//elf.DisplayProgramHeader()
+	//elf.DisplaySegments()
+	//elf.Disassemble()
 
 }
