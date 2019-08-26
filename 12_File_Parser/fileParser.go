@@ -26,10 +26,12 @@ func main() {
 	elf, err := parseelf.ParseFile(os.Args[1])
 	errorHandle(err, "Error while parsing file")
 
-	elf, err = elf.ParseProgramHeader()
+	elf = elf.ParseProgramHeader()
 	elf.DisplayELF()
-	//elf.DisplayProgramHeader()
-	//elf.DisplaySegments()
+	elf.DisplayProgramHeader()
+
+	elf = elf.ParseSegments()
+	elf.DisplaySegments()
 	//elf.Disassemble()
 
 }

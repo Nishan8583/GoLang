@@ -48,9 +48,9 @@ func init() {
 	}
 }
 
-// (elf ElfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 32 bit
+// (elf ElfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 32 bit with the proggram headers parsed
 // Since the interface methods works with value symantec, a local copy is created, so we need to return it.
-func (elf ElfHeader32) ParseProgramHeader() (ELF, error) {
+func (elf ElfHeader32) ParseProgramHeader() ELF {
 	var pHeaders []PH32
 
 	firstOff := elf.ProgramHeaderOffset       // The first progrma header
@@ -72,12 +72,12 @@ func (elf ElfHeader32) ParseProgramHeader() (ELF, error) {
 		firstOff = firstOff + 0x20 // For 32 bit the program header size is 0x20
 	}
 	elf.ProgramHeader = pHeaders
-	return elf, nil
+	return elf
 }
 
 // (elf ElfHeader32) ParseProgramHeader() ... Parses the program header section and return an ELF type for 64 bit
 // Since the interface methods works with value symantec, a local copy is created, so we need to return it.
-func (elf ElfHeader64) ParseProgramHeader() (ELF, error) {
+func (elf ElfHeader64) ParseProgramHeader() ELF {
 	var pHeaders []PH64
 
 	firstOff := elf.ProgramHeaderOffset
@@ -99,7 +99,7 @@ func (elf ElfHeader64) ParseProgramHeader() (ELF, error) {
 		firstOff = firstOff + 0x38 // For 32 bit the program header size is 0x20
 	}
 	elf.ProgramHeader = pHeaders
-	return elf, nil
+	return elf
 }
 
 func (elf ElfHeader32) DisplayProgramHeader() {

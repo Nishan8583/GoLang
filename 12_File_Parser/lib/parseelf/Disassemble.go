@@ -37,13 +37,14 @@ func (elf ElfHeader64) Disassemble() {
 	}
 }
 
+/*
 // Disassmble... the function that disassembles the code for 32 bit programs
 func (elf ElfHeader32) Disassemble() {
 	for _, value := range elf.SectionHeaders {
 		if value.Type == "SHT_PROGBITS" {
 			engine, err := capstone.New(
 				capstone.CS_ARCH_X86, // x86 intel
-				capstone.CS_MODE_32,  // 64bit mode
+				capstone.CS_MODE_32,  // 32bit mode
 			)
 
 			if err != nil {
@@ -67,3 +68,4 @@ func (elf ElfHeader32) Disassemble() {
 		}
 	}
 }
+*/

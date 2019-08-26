@@ -113,6 +113,7 @@ func (elf ElfHeader32) ParseSegments() ELF {
 		begin = begin + 0x28
 	}
 	elf.SectionHeaders = sliceOfSH32
+
 	// Now adding Section Name
 	sectionHeaderTable := elf.SectionHeaders[elf.IndexOfSectionHeaderTable]
 	begin2 := sectionHeaderTable.Offset // This is where the section header table is located in file
@@ -132,7 +133,7 @@ func (elf ElfHeader32) ParseSegments() ELF {
 		elf.SectionHeaders[key].Name = char
 	}
 	return elf
-} ////
+}
 
 func (elf ElfHeader64) ParseSegments() ELF {
 	if elf.SectionHeaderOffset == 0 {
@@ -184,7 +185,7 @@ func (elf ElfHeader64) ParseSegments() ELF {
 
 func (elf ElfHeader32) DisplaySegments() {
 	fmt.Printf("\n-----Section Header------\n")
-	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
+	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
 		"SectionSize", "ShLink")
 
 	//
@@ -198,7 +199,7 @@ func (elf ElfHeader32) DisplaySegments() {
 
 func (elf ElfHeader64) DisplaySegments() {
 	fmt.Printf("\n-----Section Header------\n")
-	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
+	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
 		"SectionSize", "ShLink")
 
 	//

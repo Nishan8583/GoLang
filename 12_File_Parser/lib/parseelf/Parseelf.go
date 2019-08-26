@@ -74,7 +74,7 @@ func init() {
 // ELF interface is used to integrate both 32 and 64 bit
 type ELF interface {
 	DisplayELF()
-	ParseProgramHeader() (ELF, error)
+	ParseProgramHeader() ELF
 	DisplayProgramHeader()
 	ParseSegments() ELF
 	DisplaySegments()
