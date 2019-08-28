@@ -32,6 +32,6 @@ func main() {
 
 	elf = elf.ParseSegments()
 	elf.DisplaySegments()
-	//elf.Disassemble()
+	elf.Disassemble()
 
 }

@@ -78,7 +78,7 @@ type ELF interface {
 	DisplayProgramHeader()
 	ParseSegments() ELF
 	DisplaySegments()
-	//Disassemble()
+	Disassemble()
 }
 
 // ElfHeader for 32 bit will contin the ELF Header part
@@ -140,7 +140,7 @@ func (elf ElfHeader32) DisplayELF() {
 
 	fmt.Printf("%-24s%-24s%-18s\n", "Fields", "|", "Values")
 	fmt.Println("-----------------------------------------------------")
-	fmt.Printf("%-24s%-24s%-18d\n", "Class", "|", elf.Class)
+	fmt.Printf("%-24s%-24s%-18x\n", "Architecture", "|", elf.Class)
 	fmt.Printf("%-24s%-24s%-18s\n", "Data", "|", elf.Data)
 	fmt.Printf("%-24s%-24s%-18s\n", "OSVersion", "|", elf.OSVersion)
 	fmt.Printf("%-24s%-24s%-18d\n", "AbiVersion", "|", elf.ABIVersion)
@@ -161,7 +161,7 @@ func (elf ElfHeader64) DisplayELF() {
 
 	fmt.Printf("%-24s%-24s%-18s\n", "Fields", "|", "Values")
 	fmt.Println("-----------------------------------------------------")
-	fmt.Printf("%-24s%-24s%-18d\n", "Class", "|", elf.Class)
+	fmt.Printf("%-24s%-24s%-18x\n", "Architecture", "|", elf.Class)
 	fmt.Printf("%-24s%-24s%-18s\n", "Data", "|", elf.Data)
 	fmt.Printf("%-24s%-24s%-18s\n", "OSVersion", "|", elf.OSVersion)
 	fmt.Printf("%-24s%-24s%-18d\n", "AbiVersion", "|", elf.ABIVersion)

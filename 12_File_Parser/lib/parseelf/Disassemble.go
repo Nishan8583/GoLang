@@ -37,7 +37,6 @@ func (elf ElfHeader64) Disassemble() {
 	}
 }
 
-/*
 // Disassmble... the function that disassembles the code for 32 bit programs
 func (elf ElfHeader32) Disassemble() {
 	for _, value := range elf.SectionHeaders {
@@ -55,7 +54,8 @@ func (elf ElfHeader32) Disassemble() {
 
 			fmt.Printf("\n\nDisassembly For %s section\n\n", value.Name)
 
-			inss, err := engine.Disasm(elf.FileContents[value.Offset:(value.Offset+value.Size)], value.VirAddr, 0)
+			fmt.Printf("%x\n",value.VirAddr);
+			inss, err := engine.Disasm(elf.FileContents[value.Offset:(value.Offset+value.Size)], uint64(value.VirAddr), 0)
 			if err != nil {
 				fmt.Println("Error while disassembling ", err)
 				continue
@@ -68,4 +68,3 @@ func (elf ElfHeader32) Disassemble() {
 		}
 	}
 }
-*/
