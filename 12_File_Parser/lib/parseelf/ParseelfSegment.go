@@ -104,7 +104,7 @@ func (elf ElfHeader32) ParseSegments() ELF {
 			Offset:       binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x10):(begin + 0x14)]),
 			Size:         binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x14):(begin + 0x18)]),
 			SectionIndex: binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x18):(begin + 0x1c)]),
-			ExtraInfo:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x1c):(begin + 20)]),
+			ExtraInfo:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x1c):(begin + 0x20)]),
 			Alignment:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x20):(begin + 0x24)]),
 			EntrySize:    binary.LittleEndian.Uint32(elf.FileContents[(begin + 0x24):(begin + 0x28)]),
 			Off:          []uint32{(begin + 0x10), (begin + 0x14)},
@@ -156,6 +156,7 @@ func (elf ElfHeader64) ParseSegments() ELF {
 			EntrySize:   binary.LittleEndian.Uint64(elf.FileContents[(begin + 0x38):(begin + 0x40)]),
 			Off:         []uint64{(begin + 0x18), (begin + 0x20)},
 		}
+		fmt.Println(sh)
 		sliceOfSH64 = append(sliceOfSH64, sh)
 		begin = begin + 0x40
 	}
