@@ -105,10 +105,10 @@ func (elf ElfHeader64) ParseProgramHeader() ELF {
 func (elf ElfHeader32) DisplayProgramHeader() {
 	fmt.Printf("\n-----Program Header------\n")
 	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s%-20s\n", "Flag", "SegmentType", "Offset", "VirtualAddress", "PhysicalAddress", "SegmentSize", "SegmentSizeInMemory", "Alignment")
-
+	fmt.Println("-------------------------------------------------------------------------------------------------------------------------------------------------")
 	//
 	for _, value := range elf.ProgramHeader {
-		fmt.Printf("%-18d%-18s0x%-18d0x%-18x%-18x%-18d%-18d%-18d\n",
+		fmt.Printf("%-18d%-18s0x%-18d0x%-18x0x%-18x%-20d%-20d%-20d\n",
 			value.PFlag, value.PType, value.POffset, value.Pvaddr, value.PAddr, value.PFileSize, value.PMemSize, value.PAlign)
 	}
 	fmt.Printf("-----Program Header------\n\n")
@@ -118,7 +118,7 @@ func (elf ElfHeader32) DisplayProgramHeader() {
 func (elf ElfHeader64) DisplayProgramHeader() {
 	fmt.Printf("\n-----Program Header------\n")
 	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s%-20s\n", "Flag", "SegmentType", "Offset", "VirtualAddress", "PhysicalAddress", "SegmentSize", "SegmentSizeInMemory", "Alignment")
-
+	fmt.Println("-------------------------------------------------------------------------------------------------------------------------------------------------")
 	for _, value := range elf.ProgramHeader {
 		fmt.Printf("%-18d%-18s0x%-18d0x%-18x0x%-18x%-20d%-20d%-20d\n",
 			value.PFlag, value.PType, value.POffset, value.Pvaddr, value.PAddr, value.PFileSize, value.PMemSize, value.PAlign)

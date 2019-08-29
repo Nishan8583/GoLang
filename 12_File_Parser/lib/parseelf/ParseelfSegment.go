@@ -156,7 +156,6 @@ func (elf ElfHeader64) ParseSegments() ELF {
 			EntrySize:   binary.LittleEndian.Uint64(elf.FileContents[(begin + 0x38):(begin + 0x40)]),
 			Off:         []uint64{(begin + 0x18), (begin + 0x20)},
 		}
-		fmt.Println(sh)
 		sliceOfSH64 = append(sliceOfSH64, sh)
 		begin = begin + 0x40
 	}
@@ -186,29 +185,29 @@ func (elf ElfHeader64) ParseSegments() ELF {
 
 func (elf ElfHeader32) DisplaySegments() {
 	fmt.Printf("\n-----Section Header------\n")
-	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
-		"SectionSize", "ShLink")
-
+	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
+		"SectionSize")
+	fmt.Println("----------------------------------------------------------------------------------------------------------------------")
 	//
 	for _, value := range elf.SectionHeaders {
-		fmt.Printf("%-18d%-18s%-18s0x%-18x%-18x%-18d%-18d%-18d\n",
-			value.IndexOffset, value.Type, value.Flags, value.VirAddr, value.Offset, value.Size)
+			fmt.Printf("%-18s%-18s%-20s0x%-18x%-20x%-20d\n",
+                        value.Name, value.Type, value.Flags, value.VirAddr, value.Offset, value.Size)
 	}
 	fmt.Printf("-----Section Header------\n\n")
 
 }
 
 func (elf ElfHeader64) DisplaySegments() {
-	fmt.Printf("\n-----Section Header------\n")
-	fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
-		"SectionSize", "ShLink")
+        fmt.Printf("\n-----Section Header------\n")
+        fmt.Printf("%-18s%-18s%-20s%-20s%-20s%-20s\n", "ShName", "ShType", "ShFlags", "VirtualAddress", "FileOffset",
+                "SectionSize")
+	fmt.Println("----------------------------------------------------------------------------------------------------------------------")
 
-	//
-	for _, value := range elf.SectionHeaders {
-		fmt.Printf("%-18s%-18s%-18s0x%-18x%-18x%-18d%-18d%-18d\n",
-			value.Name, value.Type, value.Flags, value.VirAddr, value.Offset, value.Size)
-
-	}
-	fmt.Printf("-----Section Header------\n\n")
+        //
+        for _, value := range elf.SectionHeaders {
+                        fmt.Printf("%-18s%-18s%-20s0x%-18x%-20x%-20d\n",
+                        value.Name, value.Type, value.Flags, value.VirAddr, value.Offset, value.Size)
+        }
+        fmt.Printf("-----Section Header------\n\n")
 
 }

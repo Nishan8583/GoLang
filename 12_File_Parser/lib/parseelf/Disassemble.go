@@ -7,17 +7,28 @@ import (
 )
 
 // Disassmble... the function that disassembles the code for 64 bit programs
-func (elf ElfHeader64) Disassemble() {
+func (elf ElfHeader64) Disassemble() (t error) {
+
+        defer func() {
+                r := recover()
+                if (r == nil) {
+                        return
+                }
+                fmt.Println("Panic While trying to disassemble")
+                t = r.(error);
+        }()
+
+	fmt.Println("-------------------------------------------------------DISSASSEMBLY SECTION----------------------------------------------------------")
 	for _, value := range elf.SectionHeaders {
 		if value.Type == "SHT_PROGBITS" {
 			engine, err := capstone.New(
-				capstone.CS_ARCH_X86, // x86 intel
+	 			capstone.CS_ARCH_X86, // x86 intel
 				capstone.CS_MODE_64,  // 64bit mode
 			)
 
 			if err != nil {
 				fmt.Println("Could not create engine", err)
-				return
+				return t
 			}
 			defer engine.Close()
 
@@ -35,10 +46,23 @@ func (elf ElfHeader64) Disassemble() {
 
 		}
 	}
+	fmt.Println("-------------------------------------------------------DISSASSEMBLY SECTION----------------------------------------------------------")
+	return t
 }
 
 // Disassmble... the function that disassembles the code for 32 bit programs
-func (elf ElfHeader32) Disassemble() {
+func (elf ElfHeader32) Disassemble() (t error) {
+
+	defer func() {
+		r := recover()
+		if (r == nil) {
+			return
+		}
+		fmt.Println("Panic While trying to disassemble")
+		t = r.(error);
+	}()
+
+	fmt.Println("-------------------------------------------------------DISSASSEMBLY SECTION----------------------------------------------------------")
 	for _, value := range elf.SectionHeaders {
 		if value.Type == "SHT_PROGBITS" {
 			engine, err := capstone.New(
@@ -48,7 +72,7 @@ func (elf ElfHeader32) Disassemble() {
 
 			if err != nil {
 				fmt.Println("Could not create engine", err)
-				return
+				t = err
 			}
 			defer engine.Close()
 
@@ -67,4 +91,6 @@ func (elf ElfHeader32) Disassemble() {
 
 		}
 	}
+	fmt.Println("-------------------------------------------------------DISSASSEMBLY SECTION----------------------------------------------------------")
+	return t
 }

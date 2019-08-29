@@ -78,7 +78,7 @@ type ELF interface {
 	DisplayProgramHeader()
 	ParseSegments() ELF
 	DisplaySegments()
-	Disassemble()
+	Disassemble() error
 }
 
 // ElfHeader for 32 bit will contin the ELF Header part
@@ -136,7 +136,7 @@ type ElfHeader64 struct {
 //DisplayELF... will display the elf Header Values
 // DisplayELF() will simply print the elf file header and values
 func (elf ElfHeader32) DisplayELF() {
-	fmt.Printf("-----ELF Header------\n\n")
+	fmt.Printf("-----ELF Header------\n")
 
 	fmt.Printf("%-24s%-24s%-18s\n", "Fields", "|", "Values")
 	fmt.Println("-----------------------------------------------------")
@@ -151,13 +151,13 @@ func (elf ElfHeader32) DisplayELF() {
 	fmt.Printf("%-24s%-24s%-18d\n", "ProgramHeaderOffset", "|", elf.ProgramHeaderOffset)
 	fmt.Printf("%-24s%-24s%-18d\n", "SectionHeaderOffset", "|", elf.SectionHeaderOffset)
 
-	fmt.Printf("\n\n-----ELF Header------\n")
+	fmt.Printf("-----ELF Header------\n")
 }
 
 //DisplayELF... will display the elf Header Values
 // DisplayELF() will simply print the elf file header and values
 func (elf ElfHeader64) DisplayELF() {
-	fmt.Printf("-----ELF Header------\n\n")
+	fmt.Printf("-----ELF Header------\n")
 
 	fmt.Printf("%-24s%-24s%-18s\n", "Fields", "|", "Values")
 	fmt.Println("-----------------------------------------------------")
@@ -172,7 +172,7 @@ func (elf ElfHeader64) DisplayELF() {
 	fmt.Printf("%-24s%-24s%-18d\n", "ProgramHeaderOffset", "|", elf.ProgramHeaderOffset)
 	fmt.Printf("%-24s%-24s%-18d\n", "SectionHeaderOffset", "|", elf.SectionHeaderOffset)
 
-	fmt.Printf("\n\n-----ELF Header------\n")
+	fmt.Printf("-----ELF Header------\n")
 }
 
 //ElfUnmarshal ...

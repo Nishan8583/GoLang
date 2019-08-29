@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-
+	"fmt"
 	"./lib/parseelf"
 )
 
@@ -28,10 +28,12 @@ func main() {
 
 	elf = elf.ParseProgramHeader()
 	elf.DisplayELF()
-	elf.DisplayProgramHeader()
+	//elf.DisplayProgramHeader()
 
 	elf = elf.ParseSegments()
-	elf.DisplaySegments()
-	elf.Disassemble()
-
+	//elf.DisplaySegments()
+	t := elf.Disassemble()
+	if (err != nil) {
+		fmt.Println(t)
+	}
 }
