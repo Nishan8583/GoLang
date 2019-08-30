@@ -19,7 +19,6 @@ func init() {
 	flag.BoolVar(&elfh, "elf-header", false, "./fileparser --file /path/to/file --elf-header")
 	flag.BoolVar(&dis, "disassemble", false, "./fileparser --file /path/to/file --dissassemble")
 
-	flag.Parse()
 
 }
 
@@ -33,7 +32,7 @@ func errorHandle(err error, msg string) {
 
 // The main function of program
 func main() {
-
+	flag.Parse()
 	if len(filename) == 0 {
 		fmt.Println("please provide file name")
 		os.Exit(-1)
@@ -45,14 +44,18 @@ func main() {
 	elf = elf.ParseProgramHeader()
 	elf = elf.ParseSegments()
 
-	if elfh {
-		elf.DisplayFLF()
+	if (ph) {
+		elf.DisplayProgramHeader()
 	}
-	t := elf.Disassemble()
-	if err != nil {
-		fmt.Println(t)
+	if (sh) {
+		elf.DisplaySegments()
+	}
+	if (dis) {
+		elf.Disassemble()
+	}
+	if (elfh) {
+		elf.DisplayELF()
 	}
 
 }
 
-// -file -section-header -program-header -elf-header -dissassemble
